@@ -1,4 +1,4 @@
-package me.yapoo.handler.authentication
+package me.yapoo.handler.preregistration
 
 import me.yapoo.domain.metadata.ServerInfo
 import me.yapoo.domain.registration.UserRegistrationChallenge

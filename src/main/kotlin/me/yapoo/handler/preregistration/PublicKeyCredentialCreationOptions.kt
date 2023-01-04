@@ -1,4 +1,4 @@
-package me.yapoo.handler.authentication
+package me.yapoo.handler.preregistration
 
 import me.yapoo.handler.dto.AttestationConveyancePreference
 import me.yapoo.handler.dto.AuthenticatorSelectionCriteria

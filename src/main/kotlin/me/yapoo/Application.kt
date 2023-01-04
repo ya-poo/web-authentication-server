@@ -12,8 +12,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.yapoo.di.appModule
-import me.yapoo.handler.authentication.PreregistrationHandler
-import me.yapoo.handler.authentication.PreregistrationRequest
+import me.yapoo.handler.preregistration.PreregistrationHandler
+import me.yapoo.handler.preregistration.PreregistrationRequest
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
