@@ -1,11 +1,11 @@
-package me.yapoo.handler.preregistration
+package me.yapoo.fido2.handler.preregistration
 
-import me.yapoo.handler.dto.AttestationConveyancePreference
-import me.yapoo.handler.dto.AuthenticatorSelectionCriteria
-import me.yapoo.handler.dto.PublicKeyCredentialDescriptor
-import me.yapoo.handler.dto.PublicKeyCredentialParameters
-import me.yapoo.handler.dto.PublicKeyCredentialRpEntity
-import me.yapoo.handler.dto.PublicKeyCredentialUserEntity
+import me.yapoo.fido2.handler.dto.AttestationConveyancePreference
+import me.yapoo.fido2.handler.dto.AuthenticatorSelectionCriteria
+import me.yapoo.fido2.handler.dto.PublicKeyCredentialDescriptor
+import me.yapoo.fido2.handler.dto.PublicKeyCredentialParameters
+import me.yapoo.fido2.handler.dto.PublicKeyCredentialRpEntity
+import me.yapoo.fido2.handler.dto.PublicKeyCredentialUserEntity
 
 typealias PreregistrationResponse = PublicKeyCredentialCreationOptions
 

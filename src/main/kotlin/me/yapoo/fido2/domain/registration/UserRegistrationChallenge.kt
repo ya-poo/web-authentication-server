@@ -1,4 +1,4 @@
-package me.yapoo.domain.registration
+package me.yapoo.fido2.domain.registration
 
 import java.time.Duration
 import java.time.Instant

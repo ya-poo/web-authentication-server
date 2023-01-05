@@ -1,4 +1,4 @@
-package me.yapoo.handler.dto
+package me.yapoo.fido2.handler.dto
 
 import com.fasterxml.jackson.annotation.JsonValue
 

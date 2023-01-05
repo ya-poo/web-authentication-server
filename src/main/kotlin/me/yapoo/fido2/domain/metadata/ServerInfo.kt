@@ -1,4 +1,4 @@
-package me.yapoo.domain.metadata
+package me.yapoo.fido2.domain.metadata
 
 object ServerInfo {
 

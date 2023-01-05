@@ -1,14 +1,14 @@
-package me.yapoo.handler.preregistration
+package me.yapoo.fido2.handler.preregistration
 
-import me.yapoo.domain.metadata.ServerInfo
-import me.yapoo.domain.registration.UserRegistrationChallenge
-import me.yapoo.domain.registration.UserRegistrationChallengeRepository
-import me.yapoo.domain.user.UserRepository
-import me.yapoo.handler.dto.AttestationConveyancePreference
-import me.yapoo.handler.dto.COSEAlgorithmIdentifier
-import me.yapoo.handler.dto.PublicKeyCredentialParameters
-import me.yapoo.handler.dto.PublicKeyCredentialRpEntity
-import me.yapoo.handler.dto.PublicKeyCredentialUserEntity
+import me.yapoo.fido2.domain.metadata.ServerInfo
+import me.yapoo.fido2.domain.registration.UserRegistrationChallenge
+import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
+import me.yapoo.fido2.domain.user.UserRepository
+import me.yapoo.fido2.handler.dto.AttestationConveyancePreference
+import me.yapoo.fido2.handler.dto.COSEAlgorithmIdentifier
+import me.yapoo.fido2.handler.dto.PublicKeyCredentialParameters
+import me.yapoo.fido2.handler.dto.PublicKeyCredentialRpEntity
+import me.yapoo.fido2.handler.dto.PublicKeyCredentialUserEntity
 import java.time.Instant
 import java.util.*
 

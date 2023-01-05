@@ -1,4 +1,4 @@
-package me.yapoo.domain.user
+package me.yapoo.fido2.domain.user
 
 data class User(
     val username: String, // email アドレスを想定

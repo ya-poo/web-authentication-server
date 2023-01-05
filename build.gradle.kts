@@ -6,7 +6,7 @@ plugins {
 group = "me.yapoo"
 version = "0.0.1"
 application {
-    mainClass.set("me.yapoo.ApplicationKt")
+    mainClass.set("me.yapoo.fido2.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")

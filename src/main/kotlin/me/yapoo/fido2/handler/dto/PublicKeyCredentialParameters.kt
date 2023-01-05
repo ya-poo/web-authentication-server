@@ -1,4 +1,4 @@
-package me.yapoo.handler.dto
+package me.yapoo.fido2.handler.dto
 
 data class PublicKeyCredentialParameters(
     val alg: COSEAlgorithmIdentifier,

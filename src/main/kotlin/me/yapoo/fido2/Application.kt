@@ -1,4 +1,4 @@
-package me.yapoo
+package me.yapoo.fido2
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -11,9 +11,9 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import me.yapoo.di.appModule
-import me.yapoo.handler.preregistration.PreregistrationHandler
-import me.yapoo.handler.preregistration.PreregistrationRequest
+import me.yapoo.fido2.di.appModule
+import me.yapoo.fido2.handler.preregistration.PreregistrationHandler
+import me.yapoo.fido2.handler.preregistration.PreregistrationRequest
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
