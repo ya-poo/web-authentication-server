@@ -11,11 +11,11 @@ var publicKey = {
         "name": "sample FIDO2 authentication server"
     },
     "user": {
-        "id": Uint8Array.from("51a40444-524f-4c42-b702-513034df3ac2"),
+        "id": new TextEncoder().encode("51a40444-524f-4c42-b702-513034df3ac2"),
         "name": "test2@example.com",
         "displayName": "test2@example.com"
     },
-    "challenge": Uint8Array.from("7a7cd1e3-f344-4f63-b909-282e23ffe3e5"),
+    "challenge": new TextEncoder().encode("7a7cd1e3-f344-4f63-b909-282e23ffe3e5"),
     "pubKeyCredParams": [
         {
             "alg": -7,
@@ -27,6 +27,10 @@ var publicKey = {
     "authenticatorSelection": null,
     "attestation": "none",
     "extensions": {}
+};
+
+const arrayBufferToBase64String = (buf) => {
+    return window.btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
 }
 
 navigator.credentials.create({publicKey})
@@ -34,8 +38,9 @@ navigator.credentials.create({publicKey})
         console.log(cred.id);
         console.log(cred.type);
         console.log(cred.rawId);
-        console.log(cred.response.clientDataJSON);
-        console.log(cred.response.attestationObject);
+        console.log(arrayBufferToBase64String(cred.response.clientDataJSON));
+        console.log(arrayBufferToBase64String(cred.response.attestationObject));
+        console.log(String.fromCharCode.apply(null, new Uint8Array(cred.response.clientDataJSON)));
     })
     .catch((err) => {
         console.log("ERROR", err);
