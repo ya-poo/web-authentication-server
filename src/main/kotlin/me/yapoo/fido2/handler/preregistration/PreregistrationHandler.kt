@@ -1,6 +1,6 @@
 package me.yapoo.fido2.handler.preregistration
 
-import me.yapoo.fido2.domain.metadata.ServerInfo
+import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.registration.UserRegistrationChallenge
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.UserRepository
@@ -35,8 +35,8 @@ class PreregistrationHandler(
 
         return PreregistrationResponse(
             rp = PublicKeyCredentialRpEntity(
-                id = ServerInfo.rpid,
-                name = ServerInfo.name
+                id = ServerConfig.rpid,
+                name = ServerConfig.name
             ),
             user = PublicKeyCredentialUserEntity(
                 id = userId,

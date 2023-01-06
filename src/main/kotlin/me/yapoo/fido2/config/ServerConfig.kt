@@ -1,6 +1,6 @@
-package me.yapoo.fido2.domain.metadata
+package me.yapoo.fido2.config
 
-object ServerInfo {
+object ServerConfig {
 
     const val rpid: String = "example.com"
 
