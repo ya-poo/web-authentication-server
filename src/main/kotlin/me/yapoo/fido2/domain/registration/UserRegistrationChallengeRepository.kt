@@ -9,4 +9,12 @@ class UserRegistrationChallengeRepository {
     ) {
         list.add(challenge)
     }
+
+    fun find(
+        challenge: String
+    ): UserRegistrationChallenge? {
+        return list.singleOrNull {
+            it.challenge == challenge
+        }
+    }
 }

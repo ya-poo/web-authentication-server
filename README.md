@@ -37,7 +37,7 @@ navigator.credentials.create({publicKey})
     .then((cred) => {
         console.log(cred.id);
         console.log(cred.type);
-        console.log(cred.rawId);
+        console.log(arrayBufferToBase64String(cred.rawId));
         console.log(arrayBufferToBase64String(cred.response.clientDataJSON));
         console.log(arrayBufferToBase64String(cred.response.attestationObject));
         console.log(String.fromCharCode.apply(null, new Uint8Array(cred.response.clientDataJSON)));

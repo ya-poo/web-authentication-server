@@ -26,7 +26,9 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:2.2.1")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1")
+    implementation("com.webauthn4j:webauthn4j-core:0.20.7.RELEASE")
     implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation("io.ktor:ktor-server-status-pages-jvm:2.2.1")
     testImplementation("io.ktor:ktor-server-tests-jvm:2.2.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.8.0")
 }
