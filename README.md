@@ -7,7 +7,7 @@ https://www.w3.org/TR/webauthn-2/
 ```javascript
 var publicKey = {
     "rp": {
-        "id": "example.com",
+        "id": "localhost",
         "name": "sample FIDO2 authentication server"
     },
     "user": {
