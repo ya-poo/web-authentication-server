@@ -16,11 +16,14 @@ import com.webauthn4j.validator.exception.ValidationException
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.AuthenticatorRepository
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
+import me.yapoo.fido2.domain.user.User
+import me.yapoo.fido2.domain.user.UserRepository
 import java.util.*
 
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
-    private val authenticatorRepository: AuthenticatorRepository
+    private val authenticatorRepository: AuthenticatorRepository,
+    private val userRepository: UserRepository,
 ) {
 
     fun handle(
@@ -71,5 +74,13 @@ class RegistrationHandler(
         )
 
         authenticatorRepository.add(authenticator)
+
+        userRepository.add(
+            User(
+                username = serverChallenge.username,
+                displayName = serverChallenge.username,
+                id = serverChallenge.userId
+            )
+        )
     }
 }
