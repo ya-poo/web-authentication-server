@@ -9,7 +9,6 @@ import me.yapoo.fido2.handler.dto.PublicKeyCredentialUserEntity
 
 typealias PreregistrationResponse = PublicKeyCredentialCreationOptions
 
-// PreregistrationResponse
 data class PublicKeyCredentialCreationOptions(
     val rp: PublicKeyCredentialRpEntity,
     val user: PublicKeyCredentialUserEntity,
