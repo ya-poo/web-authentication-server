@@ -1,6 +1,6 @@
 # FIDO2-Server
 
-https://www.w3.org/TR/webauthn-2/
+https://www.w3.org/TR/webauthn-3/
 
 # memo
 
@@ -37,12 +37,10 @@ const arrayBufferToBase64String = (buf) => {
 
 navigator.credentials.create({publicKey})
     .then((cred) => {
-        console.log(`id: ${cred.id}`);
-        console.log(`type: ${cred.type}`);
-        console.log(`rawId (Base64): ${arrayBufferToBase64String(cred.rawId)}`);
-        console.log(`clientDataJSON (Base64): ${arrayBufferToBase64String(cred.response.clientDataJSON)}`);
-        console.log(`attestationObject (Base64): ${arrayBufferToBase64String(cred.response.attestationObject)}`);
-        console.log(`clientDataJSON (decoded): ${String.fromCharCode.apply(null, new Uint8Array(cred.response.clientDataJSON))}`);
+        console.log(JSON.stringify({
+            clientDataJSON: arrayBufferToBase64String(cred.response.clientDataJSON),
+            attestationObject: arrayBufferToBase64String(cred.response.attestationObject)
+        }));
     })
     .catch((err) => {
         console.log("ERROR", err);
@@ -67,15 +65,16 @@ const arrayBufferToBase64String = (buf) => {
 
 navigator.credentials.get({publicKey})
     .then((cred) => {
-        console.log(`id: ${cred.id}`);
-        console.log(`type: ${cred.type}`);
-        console.log(`rawId (Base64): ${arrayBufferToBase64String(cred.rawId)}`);
-        console.log(`clientDataJSON (Base64): ${arrayBufferToBase64String(cred.response.clientDataJSON)}`);
-        console.log(`authenticatorData (Base64): ${arrayBufferToBase64String(cred.response.authenticatorData)}`);
-        console.log(`signature (Base64): ${arrayBufferToBase64String(cred.response.signature)}`);
-        console.log(`userHandle (Base64): ${arrayBufferToBase64String(cred.response.userHandle)}`);
-        console.log(`clientDataJSON (decoded): ${String.fromCharCode.apply(null, new Uint8Array(cred.response.clientDataJSON))}`);
-        console.log(`userHandle (decoded): ${String.fromCharCode.apply(null, new Uint8Array(cred.response.userHandle))}`);
+        console.log(JSON.stringify({
+            id: arrayBufferToBase64String(cred.rawId),
+            rawId: arrayBufferToBase64String(cred.rawId),
+            response: {
+                authenticatorData: arrayBufferToBase64String(cred.response.authenticatorData),
+                signature: arrayBufferToBase64String(cred.response.signature),
+                userHandle: arrayBufferToBase64String(cred.response.userHandle),
+                clientDataJSON: arrayBufferToBase64String(cred.response.clientDataJSON),
+            }
+        }));
     })
     .catch((err) => {
         console.log("ERROR", err);
