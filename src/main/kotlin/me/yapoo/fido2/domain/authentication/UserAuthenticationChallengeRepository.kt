@@ -9,4 +9,12 @@ class UserAuthenticationChallengeRepository {
     ) {
         list.add(challenge)
     }
+
+    fun find(
+        userId: String,
+    ): UserAuthenticationChallenge? {
+        return list.singleOrNull {
+            it.userId == userId
+        }
+    }
 }

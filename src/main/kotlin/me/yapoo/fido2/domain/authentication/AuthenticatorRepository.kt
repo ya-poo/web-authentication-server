@@ -11,4 +11,26 @@ class AuthenticatorRepository {
     ) {
         list.add(authenticator)
     }
+
+    fun find(
+        credentialId: ByteArray,
+    ): Authenticator? {
+        list.forEach {
+            println("saved : ${String(it.attestedCredentialData.credentialId)}")
+        }
+        println("request: $credentialId")
+
+        return list.singleOrNull {
+            it.attestedCredentialData.credentialId.contentEquals(credentialId)
+        }
+    }
+
+    fun update(
+        authenticator: Authenticator
+    ) {
+        list.removeIf {
+            it.attestedCredentialData.credentialId.contentEquals(authenticator.attestedCredentialData.credentialId)
+        }
+        list.add(authenticator)
+    }
 }

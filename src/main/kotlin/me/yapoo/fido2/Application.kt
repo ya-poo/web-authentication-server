@@ -14,6 +14,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.yapoo.fido2.di.appModule
+import me.yapoo.fido2.handler.authentication.AuthenticationHandler
+import me.yapoo.fido2.handler.authentication.AuthenticationRequest
 import me.yapoo.fido2.handler.preauthentication.PreAuthenticationHandler
 import me.yapoo.fido2.handler.preauthentication.PreAuthenticationRequest
 import me.yapoo.fido2.handler.preregistration.PreregistrationHandler
@@ -65,6 +67,7 @@ fun Application.module() {
     val preregistrationHandler by inject<PreregistrationHandler>()
     val registrationHandler by inject<RegistrationHandler>()
     val preAuthenticationHandler by inject<PreAuthenticationHandler>()
+    val authenticationHandler by inject<AuthenticationHandler>()
 
     routing {
         get("/") {
@@ -84,6 +87,11 @@ fun Application.module() {
             val request = call.receive<PreAuthenticationRequest>()
             val response = preAuthenticationHandler.handle(request)
             call.respond(response)
+        }
+        post("/authentication") {
+            val request = call.receive<AuthenticationRequest>()
+            authenticationHandler.handle(request)
+            call.respond(Unit)
         }
     }
 }
