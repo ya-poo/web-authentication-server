@@ -1,4 +1,4 @@
-package me.yapoo.fido2.handler.dto
+package me.yapoo.fido2.dto
 
 data class AuthenticatorSelectionCriteria(
     val authenticatorAttachment: AuthenticatorAttachment?,

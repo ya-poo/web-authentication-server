@@ -1,9 +1,4 @@
-package me.yapoo.fido2.handler.preauthentication
-
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialDescriptor
-import me.yapoo.fido2.handler.dto.UserVerificationRequirement
-
-typealias PreAuthenticationResponse = PublicKeyCredentialRequestOptions
+package me.yapoo.fido2.dto
 
 data class PublicKeyCredentialRequestOptions(
     val challenge: String,

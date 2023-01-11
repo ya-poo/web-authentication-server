@@ -1,13 +1,4 @@
-package me.yapoo.fido2.handler.preregistration
-
-import me.yapoo.fido2.handler.dto.AttestationConveyancePreference
-import me.yapoo.fido2.handler.dto.AuthenticatorSelectionCriteria
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialDescriptor
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialParameters
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialRpEntity
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialUserEntity
-
-typealias PreregistrationResponse = PublicKeyCredentialCreationOptions
+package me.yapoo.fido2.dto
 
 data class PublicKeyCredentialCreationOptions(
     val rp: PublicKeyCredentialRpEntity,

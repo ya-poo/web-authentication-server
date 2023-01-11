@@ -4,11 +4,11 @@ import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.registration.UserRegistrationChallenge
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.UserRepository
-import me.yapoo.fido2.handler.dto.AttestationConveyancePreference
-import me.yapoo.fido2.handler.dto.COSEAlgorithmIdentifier
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialParameters
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialRpEntity
-import me.yapoo.fido2.handler.dto.PublicKeyCredentialUserEntity
+import me.yapoo.fido2.dto.AttestationConveyancePreference
+import me.yapoo.fido2.dto.COSEAlgorithmIdentifier
+import me.yapoo.fido2.dto.PublicKeyCredentialParameters
+import me.yapoo.fido2.dto.PublicKeyCredentialRpEntity
+import me.yapoo.fido2.dto.PublicKeyCredentialUserEntity
 import java.time.Instant
 import java.util.*
 

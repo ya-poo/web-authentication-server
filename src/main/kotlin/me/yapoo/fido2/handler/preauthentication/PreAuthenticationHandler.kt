@@ -4,7 +4,7 @@ import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.UserAuthenticationChallenge
 import me.yapoo.fido2.domain.authentication.UserAuthenticationChallengeRepository
 import me.yapoo.fido2.domain.user.UserRepository
-import me.yapoo.fido2.handler.dto.UserVerificationRequirement
+import me.yapoo.fido2.dto.UserVerificationRequirement
 import java.time.Instant
 import java.util.*
 
