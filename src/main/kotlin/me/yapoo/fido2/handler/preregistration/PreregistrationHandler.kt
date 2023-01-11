@@ -24,11 +24,11 @@ class PreregistrationHandler(
             throw Exception()
         }
 
-        val userId = "51a40444-524f-4c42-b702-513034df3ac2"
+        val userId = UUID.randomUUID().toString()
         val challenge = UserRegistrationChallenge(
             userId = userId,
             username = request.username,
-            challenge = "7a7cd1e3-f344-4f63-b909-282e23ffe3e5",
+            challenge = UUID.randomUUID().toString(),
             createdAt = Instant.now()
         )
         userRegistrationChallengeRepository.create(challenge)
