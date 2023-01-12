@@ -7,7 +7,13 @@ class UserRepository {
     fun find(
         username: String
     ): User? {
-        return list.firstOrNull { it.username == username }
+        return list.singleOrNull { it.username == username }
+    }
+
+    fun findById(
+        id: String
+    ): User? {
+        return list.singleOrNull { it.id == id }
     }
 
     fun add(

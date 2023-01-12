@@ -9,4 +9,10 @@ class LoginSessionRepository {
     ) {
         list.add(session)
     }
+
+    fun find(
+        id: String
+    ): LoginSession? {
+        return list.singleOrNull { it.id == id }
+    }
 }

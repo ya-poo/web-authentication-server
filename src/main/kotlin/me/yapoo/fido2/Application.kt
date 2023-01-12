@@ -15,6 +15,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.yapoo.fido2.di.appModule
 import me.yapoo.fido2.domain.session.LoginSessionRepository
+import me.yapoo.fido2.domain.user.UserRepository
 import me.yapoo.fido2.handler.authentication.AuthenticationHandler
 import me.yapoo.fido2.handler.authentication.AuthenticationRequest
 import me.yapoo.fido2.handler.preauthentication.PreAuthenticationHandler
@@ -69,6 +70,8 @@ fun Application.module() {
     val registrationHandler by inject<RegistrationHandler>()
     val preAuthenticationHandler by inject<PreAuthenticationHandler>()
     val authenticationHandler by inject<AuthenticationHandler>()
+    val loginSessionRepository by inject<LoginSessionRepository>()
+    val userRepository by inject<UserRepository>()
 
     routing {
         get("/") {
@@ -99,6 +102,16 @@ fun Application.module() {
                 )
             )
             call.respond(Unit)
+        }
+        get("/session") {
+            val sessionCookie = call.request.cookies["login-session"]
+                ?: throw Exception()
+            val session = loginSessionRepository.find(sessionCookie)
+                ?: throw Exception()
+            val user = userRepository.findById(session.userId)
+                ?: throw Exception()
+
+            call.respond(mapOf("username" to user.username))
         }
     }
 }
