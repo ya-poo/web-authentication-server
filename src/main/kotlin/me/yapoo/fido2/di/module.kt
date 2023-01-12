@@ -3,6 +3,7 @@ package me.yapoo.fido2.di
 import me.yapoo.fido2.domain.authentication.AuthenticatorRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticationChallengeRepository
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
+import me.yapoo.fido2.domain.session.LoginSessionRepository
 import me.yapoo.fido2.domain.user.UserRepository
 import me.yapoo.fido2.handler.authentication.AuthenticationHandler
 import me.yapoo.fido2.handler.preauthentication.PreAuthenticationHandler
@@ -18,5 +19,6 @@ val appModule = module {
     single { RegistrationHandler(get(), get(), get()) }
     single { UserAuthenticationChallengeRepository() }
     single { PreAuthenticationHandler(get(), get()) }
-    single { AuthenticationHandler(get(), get()) }
+    single { LoginSessionRepository() }
+    single { AuthenticationHandler(get(), get(), get()) }
 }

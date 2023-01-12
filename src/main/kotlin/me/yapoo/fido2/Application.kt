@@ -14,6 +14,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import me.yapoo.fido2.di.appModule
+import me.yapoo.fido2.domain.session.LoginSessionRepository
 import me.yapoo.fido2.handler.authentication.AuthenticationHandler
 import me.yapoo.fido2.handler.authentication.AuthenticationRequest
 import me.yapoo.fido2.handler.preauthentication.PreAuthenticationHandler
@@ -90,7 +91,13 @@ fun Application.module() {
         }
         post("/authentication") {
             val request = call.receive<AuthenticationRequest>()
-            authenticationHandler.handle(request)
+            val session = authenticationHandler.handle(request)
+            call.response.cookies.append(
+                Cookie(
+                    name = "login-session",
+                    value = session.id
+                )
+            )
             call.respond(Unit)
         }
     }

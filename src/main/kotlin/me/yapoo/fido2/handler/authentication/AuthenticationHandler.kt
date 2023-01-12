@@ -10,15 +10,19 @@ import com.webauthn4j.validator.exception.ValidationException
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.AuthenticatorRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticationChallengeRepository
+import me.yapoo.fido2.domain.session.LoginSession
+import me.yapoo.fido2.domain.session.LoginSessionRepository
+import java.util.*
 
 class AuthenticationHandler(
     private val userAuthenticationChallengeRepository: UserAuthenticationChallengeRepository,
     private val authenticatorRepository: AuthenticatorRepository,
+    private val loginSessionRepository: LoginSessionRepository,
 ) {
 
     fun handle(
         request: AuthenticationRequest
-    ) {
+    ): LoginSession {
         val authenticationRequest = com.webauthn4j.data.AuthenticationRequest(
             Base64Util.decode(request.id),
             Base64Util.decode(request.response.userHandle),
@@ -55,5 +59,13 @@ class AuthenticationHandler(
 
         authenticator.counter++
         authenticatorRepository.update(authenticator)
+
+        val session = LoginSession(
+            id = UUID.randomUUID().toString(),
+            userId = serverChallenge.userId
+        )
+        loginSessionRepository.add(session)
+
+        return session
     }
 }
