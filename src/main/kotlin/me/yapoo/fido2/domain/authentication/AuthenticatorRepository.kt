@@ -15,11 +15,6 @@ class AuthenticatorRepository {
     fun find(
         credentialId: ByteArray,
     ): Authenticator? {
-        list.forEach {
-            println("saved : ${String(it.attestedCredentialData.credentialId)}")
-        }
-        println("request: $credentialId")
-
         return list.singleOrNull {
             it.attestedCredentialData.credentialId.contentEquals(credentialId)
         }

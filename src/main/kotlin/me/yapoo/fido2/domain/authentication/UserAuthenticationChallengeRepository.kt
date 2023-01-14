@@ -7,6 +7,7 @@ class UserAuthenticationChallengeRepository {
     fun add(
         challenge: UserAuthenticationChallenge
     ) {
+        list.removeIf { it.userId == challenge.userId }
         list.add(challenge)
     }
 

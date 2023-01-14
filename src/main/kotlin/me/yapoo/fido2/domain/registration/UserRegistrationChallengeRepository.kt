@@ -7,6 +7,7 @@ class UserRegistrationChallengeRepository {
     fun create(
         challenge: UserRegistrationChallenge
     ) {
+        list.removeIf { it.userId == challenge.userId }
         list.add(challenge)
     }
 
