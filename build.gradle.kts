@@ -29,5 +29,5 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.1")
     implementation("com.webauthn4j:webauthn4j-core:0.20.7.RELEASE")
     implementation("ch.qos.logback:logback-classic:1.4.5")
-    testImplementation("io.ktor:ktor-server-tests-jvm:2.2.2")
+    implementation("io.ktor:ktor-server-cors-jvm:2.2.2")
 }
