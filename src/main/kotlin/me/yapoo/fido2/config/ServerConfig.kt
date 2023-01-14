@@ -2,7 +2,7 @@ package me.yapoo.fido2.config
 
 object ServerConfig {
 
-    const val origin: String = "http://localhost:8080"
+    const val origin: String = "http://localhost:3000"
 
     const val rpid: String = "localhost"
 

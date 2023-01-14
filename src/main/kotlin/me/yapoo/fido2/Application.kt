@@ -9,6 +9,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -55,6 +56,13 @@ fun Application.module() {
     install(Koin) {
         slf4jLogger()
         modules(appModule)
+    }
+
+    install(CORS) {
+        allowMethod(HttpMethod.Options)
+        anyHost()
+        allowCredentials = true
+        allowNonSimpleContentTypes = true
     }
 
     val logger = LoggerFactory.getLogger(this::class.simpleName)
