@@ -18,6 +18,12 @@ class UserAuthenticatorRepository {
         }
     }
 
+    fun findByUserId(
+        userId: String,
+    ): List<UserAuthenticator> {
+        return list.filter { it.userId == userId }
+    }
+
     fun update(
         authenticator: UserAuthenticator
     ) {

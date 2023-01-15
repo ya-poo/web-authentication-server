@@ -18,7 +18,7 @@ val appModule = module {
     single { UserAuthenticatorRepository() }
     single { RegistrationHandler(get(), get(), get()) }
     single { UserAuthenticationChallengeRepository() }
-    single { PreAuthenticationHandler(get(), get()) }
+    single { PreAuthenticationHandler(get(), get(), get()) }
     single { LoginSessionRepository() }
     single { AuthenticationHandler(get(), get(), get()) }
 }
