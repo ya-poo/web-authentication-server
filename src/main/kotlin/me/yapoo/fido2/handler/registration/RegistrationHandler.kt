@@ -14,7 +14,8 @@ import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.util.Base64Util
 import com.webauthn4j.validator.exception.ValidationException
 import me.yapoo.fido2.config.ServerConfig
-import me.yapoo.fido2.domain.authentication.AuthenticatorRepository
+import me.yapoo.fido2.domain.authentication.UserAuthenticator
+import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.User
 import me.yapoo.fido2.domain.user.UserRepository
@@ -22,7 +23,7 @@ import java.util.*
 
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
-    private val authenticatorRepository: AuthenticatorRepository,
+    private val userAuthenticatorRepository: UserAuthenticatorRepository,
     private val userRepository: UserRepository,
 ) {
 
@@ -73,7 +74,12 @@ class RegistrationHandler(
             registrationData.attestationObject!!.authenticatorData.signCount
         )
 
-        authenticatorRepository.add(authenticator)
+        userAuthenticatorRepository.add(
+            UserAuthenticator(
+                userId = serverChallenge.userId,
+                authenticator = authenticator
+            )
+        )
 
         userRepository.add(
             User(

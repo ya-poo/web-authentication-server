@@ -8,15 +8,15 @@ import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.util.Base64Util
 import com.webauthn4j.validator.exception.ValidationException
 import me.yapoo.fido2.config.ServerConfig
-import me.yapoo.fido2.domain.authentication.AuthenticatorRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticationChallengeRepository
+import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.session.LoginSession
 import me.yapoo.fido2.domain.session.LoginSessionRepository
 import java.util.*
 
 class AuthenticationHandler(
     private val userAuthenticationChallengeRepository: UserAuthenticationChallengeRepository,
-    private val authenticatorRepository: AuthenticatorRepository,
+    private val userAuthenticatorRepository: UserAuthenticatorRepository,
     private val loginSessionRepository: LoginSessionRepository,
 ) {
 
@@ -34,7 +34,7 @@ class AuthenticationHandler(
             String(authenticationRequest.userHandle)
         ) ?: throw Exception()
 
-        val authenticator = authenticatorRepository.find(authenticationRequest.credentialId)
+        val userAuthenticator = userAuthenticatorRepository.find(authenticationRequest.credentialId)
             ?: throw Exception()
 
         val authenticationParameters = AuthenticationParameters(
@@ -44,8 +44,8 @@ class AuthenticationHandler(
                 DefaultChallenge(serverChallenge.challenge.toByteArray()),
                 null
             ),
-            authenticator,
-            listOf(authenticator.attestedCredentialData.credentialId),
+            userAuthenticator.authenticator,
+            listOf(userAuthenticator.authenticator.attestedCredentialData.credentialId),
             true,
             true,
         )
@@ -57,8 +57,8 @@ class AuthenticationHandler(
             throw Exception(e)
         }
 
-        authenticator.counter++
-        authenticatorRepository.update(authenticator)
+        userAuthenticator.authenticator.counter++
+        userAuthenticatorRepository.update(userAuthenticator)
 
         val session = LoginSession(
             id = UUID.randomUUID().toString(),
