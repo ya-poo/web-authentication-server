@@ -12,6 +12,7 @@ import me.yapoo.fido2.domain.authentication.UserAuthenticationChallengeRepositor
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.session.LoginSession
 import me.yapoo.fido2.domain.session.LoginSessionRepository
+import java.time.Instant
 import java.util.*
 
 class AuthenticationHandler(
@@ -33,6 +34,10 @@ class AuthenticationHandler(
         val serverChallenge = userAuthenticationChallengeRepository.find(
             String(authenticationRequest.userHandle)
         ) ?: throw Exception()
+
+        if (serverChallenge.expiresAt <= Instant.now()) {
+            throw Exception("timeout")
+        }
 
         val userAuthenticator = userAuthenticatorRepository.find(authenticationRequest.credentialId)
             ?: throw Exception()

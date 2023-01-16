@@ -19,6 +19,7 @@ import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.User
 import me.yapoo.fido2.domain.user.UserRepository
+import java.time.Instant
 import java.util.*
 
 class RegistrationHandler(
@@ -44,6 +45,10 @@ class RegistrationHandler(
         val serverChallenge = userRegistrationChallengeRepository.find(
             String(registrationData.collectedClientData!!.challenge.value)
         ) ?: throw Exception()
+
+        if (serverChallenge.expiresAt <= Instant.now()) {
+            throw Exception("timeout")
+        }
 
         val registrationParameters = RegistrationParameters(
             ServerProperty(

@@ -10,4 +10,6 @@ data class UserAuthenticationChallenge(
 ) {
 
     val timeout: Duration = Duration.ofMinutes(5)
+
+    val expiresAt: Instant = createdAt + timeout
 }
