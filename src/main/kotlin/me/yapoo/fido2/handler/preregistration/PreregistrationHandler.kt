@@ -41,7 +41,7 @@ class PreregistrationHandler(
             user = PublicKeyCredentialUserEntity(
                 id = userId,
                 name = challenge.username,
-                displayName = challenge.username
+                displayName = "${challenge.username} (display_name)"
             ),
             challenge = challenge.challenge,
             pubKeyCredParams = listOf(

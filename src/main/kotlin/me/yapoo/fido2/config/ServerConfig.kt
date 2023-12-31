@@ -6,5 +6,5 @@ object ServerConfig {
 
     const val rpid: String = "localhost"
 
-    const val name: String = "sample FIDO2 authentication server"
+    const val name: String = "Sample FIDO2 authentication server"
 }
