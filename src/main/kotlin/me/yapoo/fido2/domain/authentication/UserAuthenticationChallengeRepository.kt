@@ -1,5 +1,7 @@
 package me.yapoo.fido2.domain.authentication
 
+import java.util.UUID
+
 class UserAuthenticationChallengeRepository {
 
     private val list = mutableListOf<UserAuthenticationChallenge>()
@@ -7,15 +9,17 @@ class UserAuthenticationChallengeRepository {
     fun add(
         challenge: UserAuthenticationChallenge
     ) {
-        list.removeIf { it.userId == challenge.userId }
+        list.removeIf {
+            it.sessionId == challenge.sessionId
+        }
         list.add(challenge)
     }
 
     fun find(
-        userId: String,
+        sessionId: UUID,
     ): UserAuthenticationChallenge? {
         return list.singleOrNull {
-            it.userId == userId
+            it.sessionId == sessionId
         }
     }
 }

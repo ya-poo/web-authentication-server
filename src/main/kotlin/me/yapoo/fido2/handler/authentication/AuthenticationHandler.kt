@@ -13,7 +13,7 @@ import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.session.LoginSession
 import me.yapoo.fido2.domain.session.LoginSessionRepository
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 class AuthenticationHandler(
     private val userAuthenticationChallengeRepository: UserAuthenticationChallengeRepository,
@@ -22,7 +22,8 @@ class AuthenticationHandler(
 ) {
 
     fun handle(
-        request: AuthenticationRequest
+        request: AuthenticationRequest,
+        sessionId: UUID,
     ): LoginSession {
         val authenticationRequest = com.webauthn4j.data.AuthenticationRequest(
             Base64Util.decode(request.id),
@@ -31,9 +32,9 @@ class AuthenticationHandler(
             Base64Util.decode(request.response.clientDataJSON),
             Base64Util.decode(request.response.signature)
         )
-        val serverChallenge = userAuthenticationChallengeRepository.find(
-            String(authenticationRequest.userHandle)
-        ) ?: throw Exception()
+
+        val serverChallenge = userAuthenticationChallengeRepository.find(sessionId)
+            ?: throw Exception("challenge was not found")
 
         if (serverChallenge.expiresAt <= Instant.now()) {
             throw Exception("timeout")
@@ -67,7 +68,7 @@ class AuthenticationHandler(
 
         val session = LoginSession(
             id = UUID.randomUUID().toString(),
-            userId = serverChallenge.userId
+            userId = userAuthenticator.userId
         )
         loginSessionRepository.add(session)
 
