@@ -4,7 +4,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
-data class UserAuthenticationChallenge(
+data class AuthenticationChallenge(
     val challenge: String,
     val createdAt: Instant,
     val sessionId: UUID,

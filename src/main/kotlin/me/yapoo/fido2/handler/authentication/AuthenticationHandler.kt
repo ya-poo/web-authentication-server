@@ -8,7 +8,7 @@ import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.util.Base64Util
 import com.webauthn4j.validator.exception.ValidationException
 import me.yapoo.fido2.config.ServerConfig
-import me.yapoo.fido2.domain.authentication.UserAuthenticationChallengeRepository
+import me.yapoo.fido2.domain.authentication.AuthenticationChallengeRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.session.LoginSession
 import me.yapoo.fido2.domain.session.LoginSessionRepository
@@ -16,7 +16,7 @@ import java.time.Instant
 import java.util.UUID
 
 class AuthenticationHandler(
-    private val userAuthenticationChallengeRepository: UserAuthenticationChallengeRepository,
+    private val authenticationChallengeRepository: AuthenticationChallengeRepository,
     private val userAuthenticatorRepository: UserAuthenticatorRepository,
     private val loginSessionRepository: LoginSessionRepository,
 ) {
@@ -33,7 +33,7 @@ class AuthenticationHandler(
             Base64Util.decode(request.response.signature)
         )
 
-        val serverChallenge = userAuthenticationChallengeRepository.find(sessionId)
+        val serverChallenge = authenticationChallengeRepository.find(sessionId)
             ?: throw Exception("challenge was not found")
 
         if (serverChallenge.expiresAt <= Instant.now()) {
