@@ -5,6 +5,6 @@ data class PublicKeyCredentialRequestOptions(
     val timeout: Int?,
     val rpid: String?,
     val allowCredentials: List<PublicKeyCredentialDescriptor> = emptyList(),
-    val userVerificationRequirement: UserVerificationRequirement?,
+    val userVerification: UserVerificationRequirement?,
     val extensions: Map<String, Any?>,
 )

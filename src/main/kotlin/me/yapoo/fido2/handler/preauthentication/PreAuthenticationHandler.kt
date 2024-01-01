@@ -3,6 +3,7 @@ package me.yapoo.fido2.handler.preauthentication
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.AuthenticationChallenge
 import me.yapoo.fido2.domain.authentication.AuthenticationChallengeRepository
+import me.yapoo.fido2.dto.PublicKeyCredentialRequestOptions
 import me.yapoo.fido2.dto.UserVerificationRequirement
 import java.time.Instant
 import java.util.UUID
@@ -19,12 +20,14 @@ class PreAuthenticationHandler(
         authenticationChallengeRepository.add(challenge)
 
         return PreAuthenticationResponse(
-            challenge = challenge.challenge,
-            timeout = challenge.timeout.toMillis().toInt(),
-            rpid = ServerConfig.rpid,
-            allowCredentials = emptyList(),
-            userVerificationRequirement = UserVerificationRequirement.Preferred,
-            extensions = emptyMap()
+            publicKey = PublicKeyCredentialRequestOptions(
+                challenge = challenge.challenge,
+                timeout = challenge.timeout.toMillis().toInt(),
+                rpid = ServerConfig.rpid,
+                allowCredentials = emptyList(),
+                userVerification = UserVerificationRequirement.Preferred,
+                extensions = emptyMap()
+            ),
         ) to sessionId.toString()
     }
 }

@@ -7,6 +7,7 @@ import me.yapoo.fido2.domain.user.UserRepository
 import me.yapoo.fido2.dto.AttestationConveyancePreference
 import me.yapoo.fido2.dto.AuthenticatorSelectionCriteria
 import me.yapoo.fido2.dto.COSEAlgorithmIdentifier
+import me.yapoo.fido2.dto.PublicKeyCredentialCreationOptions
 import me.yapoo.fido2.dto.PublicKeyCredentialParameters
 import me.yapoo.fido2.dto.PublicKeyCredentialRpEntity
 import me.yapoo.fido2.dto.PublicKeyCredentialUserEntity
@@ -37,30 +38,32 @@ class PreregistrationHandler(
         userRegistrationChallengeRepository.create(challenge)
 
         return PreregistrationResponse(
-            rp = PublicKeyCredentialRpEntity(
-                id = ServerConfig.rpid,
-                name = ServerConfig.name
-            ),
-            user = PublicKeyCredentialUserEntity(
-                id = userId,
-                name = challenge.username,
-                displayName = "${challenge.username} (display_name)"
-            ),
-            challenge = challenge.challenge,
-            pubKeyCredParams = listOf(
-                PublicKeyCredentialParameters(
-                    alg = COSEAlgorithmIdentifier.ES256,
-                )
-            ),
-            timeout = challenge.timeout.toMillis().toInt(),
-            authenticatorSelection = AuthenticatorSelectionCriteria(
-                authenticatorAttachment = null,
-                residentKey = ResidentKeyRequirement.Preferred,
-                userVerification = UserVerificationRequirement.Preferred
-            ),
-            attestation = AttestationConveyancePreference.None,
-            excludeCredentials = emptyList(),
-            extensions = emptyMap(),
+            publicKey = PublicKeyCredentialCreationOptions(
+                rp = PublicKeyCredentialRpEntity(
+                    id = ServerConfig.rpid,
+                    name = ServerConfig.name
+                ),
+                user = PublicKeyCredentialUserEntity(
+                    id = userId,
+                    name = challenge.username,
+                    displayName = "${challenge.username} (display_name)"
+                ),
+                challenge = challenge.challenge,
+                pubKeyCredParams = listOf(
+                    PublicKeyCredentialParameters(
+                        alg = COSEAlgorithmIdentifier.ES256,
+                    )
+                ),
+                timeout = challenge.timeout.toMillis().toInt(),
+                authenticatorSelection = AuthenticatorSelectionCriteria(
+                    authenticatorAttachment = null,
+                    residentKey = ResidentKeyRequirement.Preferred,
+                    userVerification = UserVerificationRequirement.Preferred
+                ),
+                attestation = AttestationConveyancePreference.None,
+                excludeCredentials = emptyList(),
+                extensions = emptyMap(),
+            )
         )
     }
 }

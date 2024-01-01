@@ -1,5 +1,5 @@
 package me.yapoo.fido2.handler.preauthentication
 
-import me.yapoo.fido2.dto.PublicKeyCredentialRequestOptions
+import me.yapoo.fido2.dto.CredentialRequestOptions
 
-typealias PreAuthenticationResponse = PublicKeyCredentialRequestOptions
+typealias PreAuthenticationResponse = CredentialRequestOptions
