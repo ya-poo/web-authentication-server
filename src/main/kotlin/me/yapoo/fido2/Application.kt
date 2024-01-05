@@ -18,7 +18,6 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
 import io.ktor.server.request.receive
-import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -71,8 +70,8 @@ fun Application.module() {
 
     install(CORS) {
         // ローカルでの動作時にフロントエンドとポートが異なるため、CORS を許可しておく
+        allowHost(host = "localhost:3000", schemes = listOf("http"))
         allowMethod(HttpMethod.Options)
-        anyHost()
         allowHeader("Cookie")
         allowCredentials = true
         allowNonSimpleContentTypes = true
