@@ -23,7 +23,7 @@ class AuthenticationHandler(
 
     fun handle(
         request: AuthenticationRequest,
-        sessionId: UUID,
+        sessionId: String,
     ): LoginSession {
         val authenticationRequest = com.webauthn4j.data.AuthenticationRequest(
             Base64Util.decode(request.id),
@@ -33,15 +33,16 @@ class AuthenticationHandler(
             Base64Util.decode(request.response.signature)
         )
 
-        val serverChallenge = authenticationChallengeRepository.find(sessionId)
-            ?: throw Exception("challenge was not found")
+        val serverChallenge = authenticationChallengeRepository.find(
+            UUID.fromString(sessionId)
+        ) ?: throw Exception("challenge was not found")
 
         if (serverChallenge.expiresAt <= Instant.now()) {
             throw Exception("timeout")
         }
 
         val userAuthenticator = userAuthenticatorRepository.find(authenticationRequest.credentialId)
-            ?: throw Exception()
+            ?: throw Exception("authenticator が登録されていません")
 
         val authenticationParameters = AuthenticationParameters(
             ServerProperty(

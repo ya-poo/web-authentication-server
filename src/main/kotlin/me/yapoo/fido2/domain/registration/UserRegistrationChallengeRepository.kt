@@ -1,5 +1,7 @@
 package me.yapoo.fido2.domain.registration
 
+import java.util.UUID
+
 class UserRegistrationChallengeRepository {
 
     private val list = mutableListOf<UserRegistrationChallenge>()
@@ -12,10 +14,10 @@ class UserRegistrationChallengeRepository {
     }
 
     fun find(
-        challenge: String
+        sessionId: UUID
     ): UserRegistrationChallenge? {
         return list.singleOrNull {
-            it.challenge == challenge
+            it.registrationSessionId == sessionId
         }
     }
 }

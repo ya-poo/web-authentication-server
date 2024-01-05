@@ -23,17 +23,19 @@ class PreregistrationHandler(
 
     fun handle(
         request: PreregistrationRequest
-    ): PreregistrationResponse {
+    ): Pair<PreregistrationResponse, String> {
         if (userRepository.find(request.username) != null) {
             throw Exception()
         }
 
+        val registrationSession = UUID.randomUUID()
         val userId = UUID.randomUUID().toString()
         val challenge = UserRegistrationChallenge(
             userId = userId,
             username = request.username,
             challenge = UUID.randomUUID().toString(),
-            createdAt = Instant.now()
+            createdAt = Instant.now(),
+            registrationSessionId = registrationSession
         )
         userRegistrationChallengeRepository.create(challenge)
 
@@ -64,6 +66,6 @@ class PreregistrationHandler(
                 excludeCredentials = emptyList(),
                 extensions = emptyMap(),
             )
-        )
+        ) to registrationSession.toString()
     }
 }

@@ -25,6 +25,7 @@ import me.yapoo.fido2.dto.CollectedClientData
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.Base64
+import java.util.UUID
 
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
@@ -35,7 +36,8 @@ class RegistrationHandler(
     private val objectMapper = jacksonObjectMapper()
 
     fun handle(
-        request: RegistrationRequest
+        request: RegistrationRequest,
+        sessionId: String,
     ) {
         val manager = WebAuthnRegistrationManager.createNonStrictWebAuthnRegistrationManager()
 
@@ -49,8 +51,8 @@ class RegistrationHandler(
         }
 
         val serverChallenge = userRegistrationChallengeRepository.find(
-            String(registrationData.collectedClientData!!.challenge.value)
-        ) ?: throw Exception()
+            UUID.fromString(sessionId)
+        ) ?: throw Exception("registration session に紐づくチャレンジがありません")
 
         if (serverChallenge.expiresAt <= Instant.now()) {
             throw Exception("timeout")
@@ -103,7 +105,8 @@ class RegistrationHandler(
 
     @Suppress("unused")
     fun handle2(
-        request: RegistrationRequest
+        request: RegistrationRequest,
+        sessionId: String,
     ) {
         // step 5
         val jsonText = Base64.getDecoder().decode(request.clientDataJSON)
@@ -117,8 +120,7 @@ class RegistrationHandler(
         }
 
         // step 8
-        val requestChallenge = String(Base64.getUrlDecoder().decode(c.challenge), Charsets.UTF_8)
-        val serverChallenge = userRegistrationChallengeRepository.find(requestChallenge)
+        userRegistrationChallengeRepository.find(UUID.fromString(sessionId))
             ?: throw Exception("invalid challenge of CollectedClientData")
 
         // step 9

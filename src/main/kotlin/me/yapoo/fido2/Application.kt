@@ -99,12 +99,20 @@ fun Application.module() {
         }
         post("/preregistration") {
             val request = call.receive<PreregistrationRequest>()
-            val response = preregistrationHandler.handle(request)
+            val (response, sessionId) = preregistrationHandler.handle(request)
+            call.response.cookies.append(
+                Cookie(
+                    name = "registration-session",
+                    value = sessionId
+                )
+            )
             call.respond(response)
         }
         post("/registration") {
+            val sessionId = call.request.cookies["registration-session"]
+                ?: throw Exception("registration-session is null")
             val request = call.receive<RegistrationRequest>()
-            registrationHandler.handle(request)
+            registrationHandler.handle(request, sessionId)
             call.respond(Unit)
         }
         post("/pre-authentication") {
@@ -119,7 +127,6 @@ fun Application.module() {
         }
         post("/authentication") {
             val sessionId = call.request.cookies["authentication-session"]
-                ?.let(UUID::fromString)
                 ?: throw Exception("authentication-session is null")
             val request = call.receive<AuthenticationRequest>()
             val loginSession = authenticationHandler.handle(request, sessionId)
