@@ -169,8 +169,8 @@ class AuthenticationHandler(
         //     Relying Parties should incorporate this information into their risk scoring.
         //     Whether the Relying Party updates credentialRecord.signCount below in this case, or not, or fails the authentication ceremony or not, is Relying Party-specific.
         if (
-            authData.signCount != 0L &&
-            credentialRecord.signCount != 0L &&
+            (authData.signCount != 0L ||
+            credentialRecord.signCount != 0L) &&
             authData.signCount <= credentialRecord.signCount
         ) {
             throw Exception("invalid signCount. authData.signCount: ${authData.signCount}, credential.signCount: ${credentialRecord.signCount}")
