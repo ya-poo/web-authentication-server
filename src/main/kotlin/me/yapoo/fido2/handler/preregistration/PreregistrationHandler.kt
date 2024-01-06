@@ -1,5 +1,9 @@
 package me.yapoo.fido2.handler.preregistration
 
+import io.ktor.http.Cookie
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.registration.UserRegistrationChallenge
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
@@ -18,9 +22,11 @@ class PreregistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
 ) {
 
-    fun handle(
-        request: PreregistrationRequest
-    ): Pair<PreregistrationResponse, String> {
+    suspend fun handle(
+        call: ApplicationCall,
+    ) {
+        val request = call.receive<PreregistrationRequest>()
+
         if (userRepository.find(request.username) != null) {
             throw Exception()
         }
@@ -36,7 +42,7 @@ class PreregistrationHandler(
         )
         userRegistrationChallengeRepository.create(challenge)
 
-        return PreregistrationResponse(
+        val response = PreregistrationResponse(
             publicKey = PublicKeyCredentialCreationOptions(
                 rp = PublicKeyCredentialRpEntity(
                     id = ServerConfig.rpid,
@@ -61,6 +67,14 @@ class PreregistrationHandler(
                 excludeCredentials = emptyList(),
                 extensions = emptyMap(),
             )
-        ) to registrationSession.toString()
+        )
+
+        call.response.cookies.append(
+            Cookie(
+                name = "registration-session",
+                value = registrationSession.toString()
+            )
+        )
+        call.respond(response)
     }
 }

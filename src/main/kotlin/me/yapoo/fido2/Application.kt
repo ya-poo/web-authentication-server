@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import io.ktor.http.Cookie
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.jackson.jackson
@@ -18,7 +17,6 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
-import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -28,12 +26,9 @@ import me.yapoo.fido2.di.appModule
 import me.yapoo.fido2.domain.session.LoginSessionRepository
 import me.yapoo.fido2.domain.user.UserRepository
 import me.yapoo.fido2.handler.authentication.AuthenticationHandler
-import me.yapoo.fido2.handler.authentication.AuthenticationRequest
 import me.yapoo.fido2.handler.preauthentication.PreAuthenticationHandler
 import me.yapoo.fido2.handler.preregistration.PreregistrationHandler
-import me.yapoo.fido2.handler.preregistration.PreregistrationRequest
 import me.yapoo.fido2.handler.registration.RegistrationHandler
-import me.yapoo.fido2.handler.registration.RegistrationRequest
 import org.koin.ktor.ext.inject
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
@@ -95,57 +90,18 @@ fun Application.module() {
     val userRepository by inject<UserRepository>()
 
     routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-        post("/pre-registration") {
-            val request = call.receive<PreregistrationRequest>()
-            val (response, sessionId) = preregistrationHandler.handle(request)
-            call.response.cookies.append(
-                Cookie(
-                    name = "registration-session",
-                    value = sessionId
-                )
-            )
-            call.respond(response)
-        }
-        post("/registration") {
-            val sessionId = call.request.cookies["registration-session"]
-                ?: throw Exception("registration-session is null")
-            val request = call.receive<RegistrationRequest>()
-            registrationHandler.handle(request, sessionId)
-            call.respond(Unit)
-        }
-        post("/pre-authentication") {
-            val (responseBody, sessionId) = preAuthenticationHandler.handle()
-            call.response.cookies.append(
-                Cookie(
-                    name = "authentication-session",
-                    value = sessionId
-                )
-            )
-            call.respond(responseBody)
-        }
-        post("/authentication") {
-            val sessionId = call.request.cookies["authentication-session"]
-                ?: throw Exception("authentication-session is null")
-            val request = call.receive<AuthenticationRequest>()
-            val loginSession = authenticationHandler.handle(request, sessionId)
-            call.response.cookies.append(
-                Cookie(
-                    name = "login-session",
-                    value = loginSession.id
-                )
-            )
-            call.respond(Unit)
-        }
+        post("/pre-registration") { preregistrationHandler.handle(call) }
+        post("/registration") { registrationHandler.handle(call) }
+        post("/registration/webauthn4j") { registrationHandler.handleWithWebauthn4j(call) }
+
+        post("/pre-authentication") { preAuthenticationHandler.handle(call) }
+        post("/authentication") { authenticationHandler.handle(call) }
+        post("/authentication/webauthn4j") { authenticationHandler.handleWithWebauthn4j(call) }
+
         get("/session") {
-            val sessionCookie = call.request.cookies["login-session"]
-                ?: throw Exception()
-            val session = loginSessionRepository.find(sessionCookie)
-                ?: throw Exception()
-            val user = userRepository.findById(session.userId)
-                ?: throw Exception()
+            val sessionCookie = call.request.cookies["login-session"] ?: throw Exception("no login-session cookie")
+            val session = loginSessionRepository.find(sessionCookie) ?: throw Exception("login-session not found")
+            val user = userRepository.findById(session.userId) ?: throw Exception("user not found")
 
             call.respond(mapOf("username" to user.username))
         }

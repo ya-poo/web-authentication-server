@@ -1,5 +1,8 @@
 package me.yapoo.fido2.handler.preauthentication
 
+import io.ktor.http.Cookie
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.AuthenticationChallenge
 import me.yapoo.fido2.domain.authentication.AuthenticationChallengeRepository
@@ -11,7 +14,9 @@ class PreAuthenticationHandler(
     private val authenticationChallengeRepository: AuthenticationChallengeRepository,
 ) {
 
-    fun handle(): Pair<PreAuthenticationResponse, String> {
+    suspend fun handle(
+        call: ApplicationCall
+    ) {
         val sessionId = UUID.randomUUID()
         val challenge = AuthenticationChallenge(
             challenge = UUID.randomUUID().toString(),
@@ -20,7 +25,7 @@ class PreAuthenticationHandler(
         )
         authenticationChallengeRepository.add(challenge)
 
-        return PreAuthenticationResponse(
+        val response = PreAuthenticationResponse(
             publicKey = PublicKeyCredentialRequestOptions(
                 challenge = challenge.challenge,
                 timeout = challenge.timeout.toMillis().toInt(),
@@ -29,6 +34,14 @@ class PreAuthenticationHandler(
                 userVerification = ServerConfig.userVerificationRequirement,
                 extensions = emptyMap()
             ),
-        ) to sessionId.toString()
+        )
+
+        call.response.cookies.append(
+            Cookie(
+                name = "authentication-session",
+                value = sessionId.toString()
+            )
+        )
+        call.respond(response)
     }
 }

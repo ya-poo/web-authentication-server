@@ -14,6 +14,9 @@ import com.webauthn4j.data.client.challenge.DefaultChallenge
 import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.util.Base64Util
 import com.webauthn4j.validator.exception.ValidationException
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.UserAuthenticator
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorNew
@@ -38,10 +41,14 @@ class RegistrationHandler(
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
 ) {
-    fun handle(
-        request: RegistrationRequest,
-        sessionId: String,
+    suspend fun handle(
+        call: ApplicationCall,
     ) {
+        val request = call.receive<RegistrationRequest>()
+        val sessionId = call.request.cookies["registration-session"]
+            ?.let { UUID.fromString(it) }
+            ?: throw Exception("registration-session is null")
+
         /*
          * Registering a New Credential
          * https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
@@ -64,7 +71,7 @@ class RegistrationHandler(
 
         // step 8
         // Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-        val challenge = userRegistrationChallengeRepository.find(UUID.fromString(sessionId))
+        val challenge = userRegistrationChallengeRepository.find(sessionId)
             ?: throw Exception("invalid challenge of CollectedClientData")
         if (Base64.getDecoder().decode(c.challenge).toString(Charsets.UTF_8) != challenge.challenge) {
             throw Exception("invalid challenge of CollectedClientData")
@@ -220,13 +227,18 @@ class RegistrationHandler(
                 id = challenge.userId
             )
         )
+
+        call.respond(Unit)
     }
 
-    @Suppress("unused")
-    fun handleWithWebauthn4j(
-        request: RegistrationRequest,
-        sessionId: String,
+    suspend fun handleWithWebauthn4j(
+        call: ApplicationCall,
     ) {
+        val request = call.receive<RegistrationRequest>()
+        val sessionId = call.request.cookies["registration-session"]
+            ?.let { UUID.fromString(it) }
+            ?: throw Exception("registration-session is null")
+
         val manager = WebAuthnRegistrationManager.createNonStrictWebAuthnRegistrationManager()
 
         val registrationRequest = com.webauthn4j.data.RegistrationRequest(
@@ -238,9 +250,8 @@ class RegistrationHandler(
             throw Exception()
         }
 
-        val serverChallenge = userRegistrationChallengeRepository.find(
-            UUID.fromString(sessionId)
-        ) ?: throw Exception("registration session に紐づくチャレンジがありません")
+        val serverChallenge = userRegistrationChallengeRepository.find(sessionId)
+            ?: throw Exception("registration session に紐づくチャレンジがありません")
 
         if (serverChallenge.expiresAt <= Instant.now()) {
             throw Exception("timeout")
@@ -289,5 +300,7 @@ class RegistrationHandler(
                 id = serverChallenge.userId
             )
         )
+
+        call.respond(Unit)
     }
 }

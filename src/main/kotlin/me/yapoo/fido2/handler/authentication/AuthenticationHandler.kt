@@ -9,6 +9,10 @@ import com.webauthn4j.data.client.challenge.DefaultChallenge
 import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.util.Base64Util
 import com.webauthn4j.validator.exception.ValidationException
+import io.ktor.http.Cookie
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.AuthenticationChallengeRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorNewRepository
@@ -32,10 +36,14 @@ class AuthenticationHandler(
     private val objectMapper: ObjectMapper,
     private val userAuthenticatorNewRepository: UserAuthenticatorNewRepository,
 ) {
-    fun handle(
-        request: AuthenticationRequest,
-        sessionId: String,
-    ): LoginSession {
+    suspend fun handle(
+        call: ApplicationCall,
+    ) {
+        val request = call.receive<AuthenticationRequest>()
+        val sessionId = call.request.cookies["authentication-session"]
+            ?.let { UUID.fromString(it) }
+            ?: throw Exception("authentication-session is null")
+
         /*
          * Verifying an Authentication Assertion
          * https://www.w3.org/TR/webauthn-3/#sctn-verifying-assertion
@@ -74,9 +82,8 @@ class AuthenticationHandler(
 
         // step 13
         // Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-        val challenge = authenticationChallengeRepository.find(
-            UUID.fromString(sessionId)
-        ) ?: throw Exception("challenge was not found")
+        val challenge = authenticationChallengeRepository.find(sessionId)
+            ?: throw Exception("challenge was not found")
         if (Base64.getDecoder().decode(c.challenge).toString(Charsets.UTF_8) != challenge.challenge) {
             throw Exception("invalid challenge of CollectedClientData")
         }
@@ -197,15 +204,23 @@ class AuthenticationHandler(
         )
         loginSessionRepository.add(session)
 
-        return session
+        call.response.cookies.append(
+            Cookie(
+                name = "login-session",
+                value = session.id
+            )
+        )
+        call.respond(Unit)
     }
 
+    suspend fun handleWithWebauthn4j(
+        call: ApplicationCall,
+    ) {
+        val request = call.receive<AuthenticationRequest>()
+        val sessionId = call.request.cookies["authentication-session"]
+            ?.let { UUID.fromString(it) }
+            ?: throw Exception("authentication-session is null")
 
-    @Suppress("unused")
-    fun handleWithWebauthn4j(
-        request: AuthenticationRequest,
-        sessionId: String,
-    ): LoginSession {
         val authenticationRequest = com.webauthn4j.data.AuthenticationRequest(
             Base64Util.decode(request.id),
             Base64Util.decode(request.response.userHandle),
@@ -214,9 +229,8 @@ class AuthenticationHandler(
             Base64Util.decode(request.response.signature)
         )
 
-        val serverChallenge = authenticationChallengeRepository.find(
-            UUID.fromString(sessionId)
-        ) ?: throw Exception("challenge was not found")
+        val serverChallenge = authenticationChallengeRepository.find(sessionId)
+            ?: throw Exception("challenge was not found")
 
         if (serverChallenge.expiresAt <= Instant.now()) {
             throw Exception("timeout")
@@ -254,6 +268,12 @@ class AuthenticationHandler(
         )
         loginSessionRepository.add(session)
 
-        return session
+        call.response.cookies.append(
+            Cookie(
+                name = "login-session",
+                value = session.id
+            )
+        )
+        call.respond(Unit)
     }
 }
