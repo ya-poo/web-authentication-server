@@ -1,7 +1,6 @@
 package me.yapoo.fido2.handler.registration
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.upokecenter.cbor.CBORObject
 import com.webauthn4j.WebAuthnRegistrationManager
@@ -37,82 +36,9 @@ class RegistrationHandler(
     private val userAuthenticatorRepository: UserAuthenticatorRepository,
     private val userAuthenticatorNewRepository: UserAuthenticatorNewRepository,
     private val userRepository: UserRepository,
+    private val objectMapper: ObjectMapper,
 ) {
-
-    private val objectMapper = jacksonObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-
     fun handle(
-        request: RegistrationRequest,
-        sessionId: String,
-    ) {
-        handle2(request, sessionId)
-
-        val manager = WebAuthnRegistrationManager.createNonStrictWebAuthnRegistrationManager()
-
-        val registrationRequest = com.webauthn4j.data.RegistrationRequest(
-            Base64Util.decode(request.attestationObject),
-            Base64Util.decode(request.clientDataJSON)
-        )
-        val registrationData = manager.parse(registrationRequest)
-        if (registrationData.collectedClientData == null) {
-            throw Exception()
-        }
-
-        val serverChallenge = userRegistrationChallengeRepository.find(
-            UUID.fromString(sessionId)
-        ) ?: throw Exception("registration session に紐づくチャレンジがありません")
-
-        if (serverChallenge.expiresAt <= Instant.now()) {
-            throw Exception("timeout")
-        }
-
-        val registrationParameters = RegistrationParameters(
-            ServerProperty(
-                Origin.create(ServerConfig.origin),
-                ServerConfig.rpid,
-                DefaultChallenge(serverChallenge.challenge.toByteArray()),
-                null
-            ),
-            listOf(
-                PublicKeyCredentialParameters(
-                    PublicKeyCredentialType.PUBLIC_KEY,
-                    COSEAlgorithmIdentifier.ES256
-                )
-            ),
-            false,
-            true
-        )
-
-        try {
-            manager.validate(registrationData, registrationParameters)
-        } catch (e: ValidationException) {
-            throw Exception(e)
-        }
-
-        val authenticator = AuthenticatorImpl(
-            registrationData.attestationObject!!.authenticatorData.attestedCredentialData!!,
-            registrationData.attestationObject?.attestationStatement,
-            registrationData.attestationObject!!.authenticatorData.signCount
-        )
-
-        userAuthenticatorRepository.add(
-            UserAuthenticator(
-                userId = serverChallenge.userId,
-                authenticator = authenticator
-            )
-        )
-
-        userRepository.add(
-            User(
-                username = serverChallenge.username,
-                displayName = serverChallenge.username,
-                id = serverChallenge.userId
-            )
-        )
-    }
-
-    fun handle2(
         request: RegistrationRequest,
         sessionId: String,
     ) {
@@ -140,6 +66,9 @@ class RegistrationHandler(
         // Verify that the value of C.challenge equals the base64url encoding of options.challenge.
         val challenge = userRegistrationChallengeRepository.find(UUID.fromString(sessionId))
             ?: throw Exception("invalid challenge of CollectedClientData")
+        if (Base64.getDecoder().decode(c.challenge).toString(Charsets.UTF_8) != challenge.challenge) {
+            throw Exception("invalid challenge of CollectedClientData")
+        }
 
         // step 9
         // Verify that the value of C.origin is an origin expected by the Relying Party.
@@ -173,6 +102,11 @@ class RegistrationHandler(
                 )
             }
             .toAttestationObject()
+
+        // step にはないが、create() では必ず attestedCredentialData が存在するはずなので、チェックを行う。
+        if (attestationObject.authenticatorData.attestedCredentialData == null) {
+            throw Exception("invalid attestedCredentialData of AttestationObject")
+        }
 
         // step 13
         // Verify that the rpIdHash in authData is the SHA-256 hash of the RP ID expected by the Relying Party.
@@ -259,7 +193,7 @@ class RegistrationHandler(
         // step 27
         // If the attestation statement attStmt verified successfully and is found to be trustworthy,
         // then create and store a new credential record in the user account that was denoted in options.user
-        userAuthenticatorNewRepository.add(
+        userAuthenticatorNewRepository.save(
             UserAuthenticatorNew(
                 type = request.type,
                 id = attestationObject.authenticatorData.attestedCredentialData.credentialId,
@@ -278,5 +212,82 @@ class RegistrationHandler(
         // step 28: skip
         // If the attestation statement attStmt successfully verified but is not trustworthy per step 23 above,
         // the Relying Party SHOULD fail the registration ceremony.
+
+        userRepository.add(
+            User(
+                username = challenge.username,
+                displayName = challenge.username,
+                id = challenge.userId
+            )
+        )
+    }
+
+    @Suppress("unused")
+    fun handleWithWebauthn4j(
+        request: RegistrationRequest,
+        sessionId: String,
+    ) {
+        val manager = WebAuthnRegistrationManager.createNonStrictWebAuthnRegistrationManager()
+
+        val registrationRequest = com.webauthn4j.data.RegistrationRequest(
+            Base64Util.decode(request.attestationObject),
+            Base64Util.decode(request.clientDataJSON)
+        )
+        val registrationData = manager.parse(registrationRequest)
+        if (registrationData.collectedClientData == null) {
+            throw Exception()
+        }
+
+        val serverChallenge = userRegistrationChallengeRepository.find(
+            UUID.fromString(sessionId)
+        ) ?: throw Exception("registration session に紐づくチャレンジがありません")
+
+        if (serverChallenge.expiresAt <= Instant.now()) {
+            throw Exception("timeout")
+        }
+
+        val registrationParameters = RegistrationParameters(
+            ServerProperty(
+                Origin.create(ServerConfig.origin),
+                ServerConfig.rpid,
+                DefaultChallenge(serverChallenge.challenge.toByteArray()),
+                null
+            ),
+            listOf(
+                PublicKeyCredentialParameters(
+                    PublicKeyCredentialType.PUBLIC_KEY,
+                    COSEAlgorithmIdentifier.ES256
+                )
+            ),
+            false,
+            true
+        )
+
+        try {
+            manager.validate(registrationData, registrationParameters)
+        } catch (e: ValidationException) {
+            throw Exception(e)
+        }
+
+        val authenticator = AuthenticatorImpl(
+            registrationData.attestationObject!!.authenticatorData.attestedCredentialData!!,
+            registrationData.attestationObject?.attestationStatement,
+            registrationData.attestationObject!!.authenticatorData.signCount
+        )
+
+        userAuthenticatorRepository.add(
+            UserAuthenticator(
+                userId = serverChallenge.userId,
+                authenticator = authenticator
+            )
+        )
+
+        userRepository.add(
+            User(
+                username = serverChallenge.username,
+                displayName = serverChallenge.username,
+                id = serverChallenge.userId
+            )
+        )
     }
 }

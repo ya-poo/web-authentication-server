@@ -16,4 +16,24 @@ class UserAuthenticatorNew(
     val attestationObject: AttestationObject,
     val attestationClientDataJson: CollectedClientData,
     val userId: String,
-)
+) {
+
+    fun update(
+        signCount: Long,
+        currentBs: Boolean,
+    ): UserAuthenticatorNew {
+        return UserAuthenticatorNew(
+            type = type,
+            id = id,
+            publicKey = publicKey,
+            signCount = signCount,
+            uvInitialised = uvInitialised,
+            transports = transports,
+            backupEligible = backupEligible,
+            backupState = currentBs,
+            attestationObject = attestationObject,
+            attestationClientDataJson = attestationClientDataJson,
+            userId = userId,
+        )
+    }
+}

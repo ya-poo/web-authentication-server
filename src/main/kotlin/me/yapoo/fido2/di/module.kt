@@ -1,5 +1,7 @@
 package me.yapoo.fido2.di
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.yapoo.fido2.domain.authentication.AuthenticationChallengeRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorNewRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
@@ -16,11 +18,15 @@ val appModule = module {
     single { UserRepository() }
     single { UserRegistrationChallengeRepository() }
     single { UserAuthenticatorNewRepository() }
+    single {
+        jacksonObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    }
     single { PreregistrationHandler(get(), get()) }
     single { UserAuthenticatorRepository() }
-    single { RegistrationHandler(get(), get(), get(), get()) }
+    single { RegistrationHandler(get(), get(), get(), get(), get()) }
     single { AuthenticationChallengeRepository() }
     single { PreAuthenticationHandler(get()) }
     single { LoginSessionRepository() }
-    single { AuthenticationHandler(get(), get(), get()) }
+    single { AuthenticationHandler(get(), get(), get(), get(), get(), get()) }
 }

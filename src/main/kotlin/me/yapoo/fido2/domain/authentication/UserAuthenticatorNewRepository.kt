@@ -10,7 +10,10 @@ class UserAuthenticatorNewRepository {
         }
     }
 
-    fun add(authenticatorNew: UserAuthenticatorNew) {
+    fun save(authenticatorNew: UserAuthenticatorNew) {
+        list.removeIf {
+            it.id.contentEquals(authenticatorNew.id)
+        }
         list.add(authenticatorNew)
     }
 }
