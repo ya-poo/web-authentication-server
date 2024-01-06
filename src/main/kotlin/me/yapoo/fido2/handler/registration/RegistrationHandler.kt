@@ -116,6 +116,11 @@ class RegistrationHandler(
         request: RegistrationRequest,
         sessionId: String,
     ) {
+        /*
+         * Registering a New Credential
+         * https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
+         */
+
         // step 5
         // Let JSONtext be the result of running UTF-8 decode on the value of response.clientDataJSON.
         val jsonText = Base64.getDecoder().decode(request.clientDataJSON)

@@ -15,7 +15,9 @@ class PreAuthenticationHandler(
     fun handle(): Pair<PreAuthenticationResponse, String> {
         val sessionId = UUID.randomUUID()
         val challenge = AuthenticationChallenge(
-            challenge = UUID.randomUUID().toString(), createdAt = Instant.now(), sessionId = sessionId
+            challenge = UUID.randomUUID().toString(),
+            createdAt = Instant.now(),
+            sessionId = sessionId
         )
         authenticationChallengeRepository.add(challenge)
 

@@ -98,7 +98,7 @@ fun Application.module() {
         get("/") {
             call.respondText("Hello World!")
         }
-        post("/preregistration") {
+        post("/pre-registration") {
             val request = call.receive<PreregistrationRequest>()
             val (response, sessionId) = preregistrationHandler.handle(request)
             call.response.cookies.append(
