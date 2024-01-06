@@ -4,15 +4,12 @@ import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.registration.UserRegistrationChallenge
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.UserRepository
-import me.yapoo.fido2.dto.AttestationConveyancePreference
 import me.yapoo.fido2.dto.AuthenticatorSelectionCriteria
-import me.yapoo.fido2.dto.COSEAlgorithmIdentifier
 import me.yapoo.fido2.dto.PublicKeyCredentialCreationOptions
 import me.yapoo.fido2.dto.PublicKeyCredentialParameters
 import me.yapoo.fido2.dto.PublicKeyCredentialRpEntity
 import me.yapoo.fido2.dto.PublicKeyCredentialUserEntity
 import me.yapoo.fido2.dto.ResidentKeyRequirement
-import me.yapoo.fido2.dto.UserVerificationRequirement
 import java.time.Instant
 import java.util.UUID
 
@@ -51,18 +48,16 @@ class PreregistrationHandler(
                     displayName = "${challenge.username} (display_name)"
                 ),
                 challenge = challenge.challenge,
-                pubKeyCredParams = listOf(
-                    PublicKeyCredentialParameters(
-                        alg = COSEAlgorithmIdentifier.ES256,
-                    )
-                ),
+                pubKeyCredParams = ServerConfig.allowedCoseAlgorithms.map {
+                    PublicKeyCredentialParameters(alg = it)
+                },
                 timeout = challenge.timeout.toMillis().toInt(),
                 authenticatorSelection = AuthenticatorSelectionCriteria(
                     authenticatorAttachment = null,
                     residentKey = ResidentKeyRequirement.Preferred,
-                    userVerification = UserVerificationRequirement.Preferred
+                    userVerification = ServerConfig.userVerificationRequirement
                 ),
-                attestation = AttestationConveyancePreference.None,
+                attestation = ServerConfig.attestation,
                 excludeCredentials = emptyList(),
                 extensions = emptyMap(),
             )

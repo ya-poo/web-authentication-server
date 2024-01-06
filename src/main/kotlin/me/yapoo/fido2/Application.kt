@@ -1,6 +1,7 @@
 package me.yapoo.fido2
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.http.Cookie
@@ -38,7 +39,6 @@ import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
-import java.util.UUID
 
 fun main() {
     embeddedServer(
@@ -53,6 +53,7 @@ fun Application.module() {
     install(ContentNegotiation) {
         jackson {
             configure(SerializationFeature.INDENT_OUTPUT, true)
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             registerModule(JavaTimeModule())
             setSerializationInclusion(JsonInclude.Include.NON_NULL)
         }

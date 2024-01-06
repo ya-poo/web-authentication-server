@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonValue
  */
 enum class COSEAlgorithmIdentifier(
     @JsonValue
-    val value: Long
+    val value: Int
 ) {
     ES256(-7),
     ES384(-35),
