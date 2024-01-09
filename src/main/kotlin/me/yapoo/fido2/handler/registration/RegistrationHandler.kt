@@ -19,8 +19,8 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticator
-import me.yapoo.fido2.domain.authentication.UserAuthenticatorNew
-import me.yapoo.fido2.domain.authentication.UserAuthenticatorNewRepository
+import me.yapoo.fido2.domain.authentication.UserAuthenticator
+import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticatorRepository
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.User
@@ -37,7 +37,7 @@ import java.util.UUID
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
     private val userWebAuthn4jAuthenticatorRepository: UserWebAuthn4jAuthenticatorRepository,
-    private val userAuthenticatorNewRepository: UserAuthenticatorNewRepository,
+    private val userAuthenticatorRepository: UserAuthenticatorRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
 ) {
@@ -193,15 +193,15 @@ class RegistrationHandler(
 
         // step 26
         // Verify that the credentialId is not yet registered for any user.
-        if (userAuthenticatorNewRepository.find(attestationObject.authenticatorData.attestedCredentialData.credentialId) != null) {
+        if (userAuthenticatorRepository.find(attestationObject.authenticatorData.attestedCredentialData.credentialId) != null) {
             throw Exception("already registered credential")
         }
 
         // step 27
         // If the attestation statement attStmt verified successfully and is found to be trustworthy,
         // then create and store a new credential record in the user account that was denoted in options.user
-        userAuthenticatorNewRepository.save(
-            UserAuthenticatorNew(
+        userAuthenticatorRepository.save(
+            UserAuthenticator(
                 type = request.type,
                 id = attestationObject.authenticatorData.attestedCredentialData.credentialId,
                 publicKey = attestationObject.authenticatorData.attestedCredentialData.credentialPublicKey,

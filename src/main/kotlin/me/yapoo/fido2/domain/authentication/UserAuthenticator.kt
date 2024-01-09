@@ -4,7 +4,7 @@ import com.upokecenter.cbor.CBORObject
 import me.yapoo.fido2.dto.AttestationObject
 import me.yapoo.fido2.dto.CollectedClientData
 
-class UserAuthenticatorNew(
+class UserAuthenticator(
     val type: String,
     val id: ByteArray,
     val publicKey: CBORObject,
@@ -21,8 +21,8 @@ class UserAuthenticatorNew(
     fun update(
         signCount: Long,
         currentBs: Boolean,
-    ): UserAuthenticatorNew {
-        return UserAuthenticatorNew(
+    ): UserAuthenticator {
+        return UserAuthenticator(
             type = type,
             id = id,
             publicKey = publicKey,

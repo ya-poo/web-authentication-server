@@ -15,7 +15,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.AuthenticationChallengeRepository
-import me.yapoo.fido2.domain.authentication.UserAuthenticatorNewRepository
+import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
 import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticatorRepository
 import me.yapoo.fido2.domain.session.LoginSession
 import me.yapoo.fido2.domain.session.LoginSessionRepository
@@ -34,7 +34,7 @@ class AuthenticationHandler(
     private val loginSessionRepository: LoginSessionRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
-    private val userAuthenticatorNewRepository: UserAuthenticatorNewRepository,
+    private val userAuthenticatorRepository: UserAuthenticatorRepository,
 ) {
     suspend fun handle(
         call: ApplicationCall,
@@ -155,7 +155,7 @@ class AuthenticationHandler(
 
         // TODO: step 23
         // Using credentialRecord.publicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
-        val credentialRecord = userAuthenticatorNewRepository.find(
+        val credentialRecord = userAuthenticatorRepository.find(
             Base64.getDecoder().decode(request.id)
         ) ?: throw Exception("credential not found")
 
@@ -192,7 +192,7 @@ class AuthenticationHandler(
             signCount = authData.signCount,
             currentBs = authData.flags.bs,
         )
-        userAuthenticatorNewRepository.save(newCredential)
+        userAuthenticatorRepository.save(newCredential)
 
         // step 27
         // If all the above steps are successful, continue with the authentication ceremony as appropriate.

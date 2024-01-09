@@ -1,16 +1,16 @@
 package me.yapoo.fido2.domain.authentication
 
-class UserAuthenticatorNewRepository {
+class UserAuthenticatorRepository {
 
-    private val list = mutableListOf<UserAuthenticatorNew>()
+    private val list = mutableListOf<UserAuthenticator>()
 
-    fun find(id: ByteArray): UserAuthenticatorNew? {
+    fun find(id: ByteArray): UserAuthenticator? {
         return list.firstOrNull {
             it.id.contentEquals(id)
         }
     }
 
-    fun save(authenticatorNew: UserAuthenticatorNew) {
+    fun save(authenticatorNew: UserAuthenticator) {
         list.removeIf {
             it.id.contentEquals(authenticatorNew.id)
         }
