@@ -18,10 +18,10 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
-import me.yapoo.fido2.domain.authentication.UserAuthenticator
+import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticator
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorNew
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorNewRepository
-import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
+import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticatorRepository
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.User
 import me.yapoo.fido2.domain.user.UserRepository
@@ -36,7 +36,7 @@ import java.util.UUID
 
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
-    private val userAuthenticatorRepository: UserAuthenticatorRepository,
+    private val userWebAuthn4jAuthenticatorRepository: UserWebAuthn4jAuthenticatorRepository,
     private val userAuthenticatorNewRepository: UserAuthenticatorNewRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
@@ -286,8 +286,8 @@ class RegistrationHandler(
             registrationData.attestationObject!!.authenticatorData.signCount
         )
 
-        userAuthenticatorRepository.add(
-            UserAuthenticator(
+        userWebAuthn4jAuthenticatorRepository.add(
+            UserWebAuthn4jAuthenticator(
                 userId = serverChallenge.userId,
                 authenticator = authenticator
             )

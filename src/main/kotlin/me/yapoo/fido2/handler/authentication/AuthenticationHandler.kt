@@ -16,7 +16,7 @@ import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
 import me.yapoo.fido2.domain.authentication.AuthenticationChallengeRepository
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorNewRepository
-import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
+import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticatorRepository
 import me.yapoo.fido2.domain.session.LoginSession
 import me.yapoo.fido2.domain.session.LoginSessionRepository
 import me.yapoo.fido2.domain.user.UserRepository
@@ -30,7 +30,7 @@ import java.util.UUID
 
 class AuthenticationHandler(
     private val authenticationChallengeRepository: AuthenticationChallengeRepository,
-    private val userAuthenticatorRepository: UserAuthenticatorRepository,
+    private val userWebAuthn4jAuthenticatorRepository: UserWebAuthn4jAuthenticatorRepository,
     private val loginSessionRepository: LoginSessionRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
@@ -236,7 +236,7 @@ class AuthenticationHandler(
             throw Exception("timeout")
         }
 
-        val userAuthenticator = userAuthenticatorRepository.find(authenticationRequest.credentialId)
+        val userAuthenticator = userWebAuthn4jAuthenticatorRepository.find(authenticationRequest.credentialId)
             ?: throw Exception("authenticator が登録されていません")
 
         val authenticationParameters = AuthenticationParameters(
@@ -260,7 +260,7 @@ class AuthenticationHandler(
         }
 
         userAuthenticator.authenticator.counter++
-        userAuthenticatorRepository.update(userAuthenticator)
+        userWebAuthn4jAuthenticatorRepository.update(userAuthenticator)
 
         val session = LoginSession(
             id = UUID.randomUUID().toString(),

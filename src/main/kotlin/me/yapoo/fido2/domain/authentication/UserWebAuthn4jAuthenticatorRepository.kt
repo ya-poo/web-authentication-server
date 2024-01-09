@@ -1,18 +1,18 @@
 package me.yapoo.fido2.domain.authentication
 
-class UserAuthenticatorRepository {
+class UserWebAuthn4jAuthenticatorRepository {
 
-    private val list = mutableListOf<UserAuthenticator>()
+    private val list = mutableListOf<UserWebAuthn4jAuthenticator>()
 
     fun add(
-        authenticator: UserAuthenticator
+        authenticator: UserWebAuthn4jAuthenticator
     ) {
         list.add(authenticator)
     }
 
     fun find(
         credentialId: ByteArray,
-    ): UserAuthenticator? {
+    ): UserWebAuthn4jAuthenticator? {
         return list.singleOrNull {
             it.authenticator.attestedCredentialData.credentialId.contentEquals(credentialId)
         }
@@ -20,12 +20,12 @@ class UserAuthenticatorRepository {
 
     fun findByUserId(
         userId: String,
-    ): List<UserAuthenticator> {
+    ): List<UserWebAuthn4jAuthenticator> {
         return list.filter { it.userId == userId }
     }
 
     fun update(
-        authenticator: UserAuthenticator
+        authenticator: UserWebAuthn4jAuthenticator
     ) {
         list.removeIf {
             it.authenticator.attestedCredentialData.credentialId.contentEquals(authenticator.authenticator.attestedCredentialData.credentialId) &&
