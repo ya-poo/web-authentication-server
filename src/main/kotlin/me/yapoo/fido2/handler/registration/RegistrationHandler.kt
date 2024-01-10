@@ -18,9 +18,9 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import me.yapoo.fido2.config.ServerConfig
-import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticator
 import me.yapoo.fido2.domain.authentication.UserAuthenticator
 import me.yapoo.fido2.domain.authentication.UserAuthenticatorRepository
+import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticator
 import me.yapoo.fido2.domain.authentication.UserWebAuthn4jAuthenticatorRepository
 import me.yapoo.fido2.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.fido2.domain.user.User
@@ -153,8 +153,8 @@ class RegistrationHandler(
 
         // step 19
         // Verify that the "alg" parameter in the credential public key in authData matches the alg attribute of one of the items in options.pubKeyCredParams.
-        val alg = attestationObject.authenticatorData.attestedCredentialData.credentialPublicKey[3].AsInt32()
-        if (alg !in ServerConfig.allowedCoseAlgorithms.map { it.value }) {
+        val alg = attestationObject.authenticatorData.attestedCredentialData.credentialPublicKey.algorithm
+        if (alg !in ServerConfig.allowedCoseAlgorithms) {
             throw Exception("invalid alg parameter of credentialPublicKey: $alg")
         }
 

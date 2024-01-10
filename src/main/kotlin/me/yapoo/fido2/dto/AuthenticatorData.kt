@@ -33,7 +33,7 @@ class AuthenticatorData(
         val aaguid: ByteArray,
         val credentialIdLength: Int,
         val credentialId: ByteArray,
-        val credentialPublicKey: CBORObject
+        val credentialPublicKey: CredentialPublicKey
     )
 
     companion object {
@@ -70,7 +70,7 @@ class AuthenticatorData(
                     aaguid = aaguid,
                     credentialIdLength = l,
                     credentialId = credentialId,
-                    credentialPublicKey = credentialPublicKey
+                    credentialPublicKey = CredentialPublicKey.of(credentialPublicKey)
                 )
             } else {
                 null

@@ -62,7 +62,8 @@ class AuthenticationHandler(
         // step 9
         // Let cData, authData and sig denote the value of response’s clientDataJSON, authenticatorData, and signature respectively.
         val cData = Base64.getDecoder().decode(request.response.clientDataJSON)
-        val authData = AuthenticatorData.of(Base64.getDecoder().decode(request.response.authenticatorData))
+        val rawAuthData = Base64.getDecoder().decode(request.response.authenticatorData)
+        val authData = AuthenticatorData.of(rawAuthData)
         val sig = Base64.getDecoder().decode(request.response.signature)
 
         // step 10
@@ -153,11 +154,14 @@ class AuthenticationHandler(
         // Let hash be the result of computing a hash over the cData using SHA-256.
         val hash = MessageDigest.getInstance("SHA-256").digest(cData)
 
-        // TODO: step 23
+        // step 23
         // Using credentialRecord.publicKey, verify that sig is a valid signature over the binary concatenation of authData and hash.
         val credentialRecord = userAuthenticatorRepository.find(
             Base64.getDecoder().decode(request.id)
         ) ?: throw Exception("credential not found")
+        if (!credentialRecord.publicKey.verify(sig, rawAuthData + hash)) {
+            throw Exception("invalid signature")
+        }
 
         // step 24
         // If authData.signCount is nonzero or credentialRecord.signCount is nonzero, then run the following sub-step:
@@ -169,8 +173,7 @@ class AuthenticationHandler(
         //     Relying Parties should incorporate this information into their risk scoring.
         //     Whether the Relying Party updates credentialRecord.signCount below in this case, or not, or fails the authentication ceremony or not, is Relying Party-specific.
         if (
-            (authData.signCount != 0L ||
-            credentialRecord.signCount != 0L) &&
+            (authData.signCount != 0L || credentialRecord.signCount != 0L) &&
             authData.signCount <= credentialRecord.signCount
         ) {
             throw Exception("invalid signCount. authData.signCount: ${authData.signCount}, credential.signCount: ${credentialRecord.signCount}")
