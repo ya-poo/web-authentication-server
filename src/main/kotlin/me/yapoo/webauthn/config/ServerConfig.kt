@@ -10,7 +10,7 @@ object ServerConfig {
 
     const val rpid: String = "localhost"
 
-    const val name: String = "Sample FIDO2 authentication server"
+    const val name: String = "Sample WebAuthn authentication server"
 
     val userVerificationRequirement = UserVerificationRequirement.Preferred
 
