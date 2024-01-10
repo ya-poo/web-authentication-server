@@ -2,7 +2,6 @@ package me.yapoo.webauthn.handler.registration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.upokecenter.cbor.CBORObject
 import com.webauthn4j.WebAuthnRegistrationManager
 import com.webauthn4j.authenticator.AuthenticatorImpl
 import com.webauthn4j.data.PublicKeyCredentialParameters
@@ -25,10 +24,9 @@ import me.yapoo.webauthn.domain.authentication.UserWebAuthn4jAuthenticatorReposi
 import me.yapoo.webauthn.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.webauthn.domain.user.User
 import me.yapoo.webauthn.domain.user.UserRepository
+import me.yapoo.webauthn.dto.AttestationObject
 import me.yapoo.webauthn.dto.CollectedClientData
-import me.yapoo.webauthn.dto.RawAttestationObject
 import me.yapoo.webauthn.dto.UserVerificationRequirement
-import me.yapoo.webauthn.dto.toAttestationObject
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.Base64
@@ -100,15 +98,9 @@ class RegistrationHandler(
         // step 12
         // Perform CBOR decoding on the attestationObject field of the AuthenticatorAttestationResponse structure
         // to obtain the attestation statement format fmt, the authenticator data authData, and the attestation statement attStmt.
-        val attestationObject = CBORObject.DecodeFromBytes(Base64.getDecoder().decode(request.attestationObject))
-            .let {
-                RawAttestationObject(
-                    fmt = it["fmt"].AsString(),
-                    attStmt = it["attStmt"].ToObject(Map::class.java),
-                    authData = it["authData"].ToObject(ByteArray::class.java)
-                )
-            }
-            .toAttestationObject()
+        val attestationObject = AttestationObject.of(
+            bytes = Base64.getDecoder().decode(request.attestationObject)
+        )
 
         // step にはないが、create() では必ず attestedCredentialData が存在するはずなので、チェックを行う。
         if (attestationObject.authenticatorData.attestedCredentialData == null) {

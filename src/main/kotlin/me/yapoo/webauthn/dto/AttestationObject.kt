@@ -1,22 +1,25 @@
 package me.yapoo.webauthn.dto
 
+import com.upokecenter.cbor.CBORObject
 
-class RawAttestationObject(
-    val fmt: String,
-    val attStmt: Map<String, String>,
-    val authData: ByteArray,
-)
 
 class AttestationObject(
     val fmt: String,
     val attStmt: Map<String, String>,
     val authenticatorData: AuthenticatorData
-)
+) {
 
-fun RawAttestationObject.toAttestationObject(): AttestationObject {
-    return AttestationObject(
-        fmt = fmt,
-        attStmt = attStmt,
-        authenticatorData = AuthenticatorData.of(authData)
-    )
+    companion object {
+
+        fun of(bytes: ByteArray): AttestationObject {
+            val cbor = CBORObject.DecodeFromBytes(bytes)
+            return AttestationObject(
+                fmt = cbor["fmt"].AsString(),
+                attStmt = cbor["attStmt"].ToObject(Map::class.java),
+                authenticatorData = AuthenticatorData.of(
+                    cbor["authData"].ToObject(ByteArray::class.java)
+                )
+            )
+        }
+    }
 }
