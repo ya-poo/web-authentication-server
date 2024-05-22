@@ -4,7 +4,7 @@ import me.yapoo.webauthn.dto.AttestationObject
 import me.yapoo.webauthn.dto.CollectedClientData
 import me.yapoo.webauthn.dto.CredentialPublicKey
 
-class UserAuthenticator(
+class UserCredential(
     val type: String,
     val id: ByteArray,
     val publicKey: CredentialPublicKey,
@@ -21,8 +21,8 @@ class UserAuthenticator(
     fun update(
         signCount: Long,
         currentBs: Boolean,
-    ): UserAuthenticator {
-        return UserAuthenticator(
+    ): UserCredential {
+        return UserCredential(
             type = type,
             id = id,
             publicKey = publicKey,

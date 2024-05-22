@@ -3,7 +3,7 @@ package me.yapoo.webauthn.di
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import me.yapoo.webauthn.domain.authentication.AuthenticationChallengeRepository
-import me.yapoo.webauthn.domain.authentication.UserAuthenticatorRepository
+import me.yapoo.webauthn.domain.authentication.UserCredentialRepository
 import me.yapoo.webauthn.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.webauthn.domain.session.LoginSessionRepository
 import me.yapoo.webauthn.domain.user.UserRepository
@@ -16,7 +16,7 @@ import org.koin.dsl.module
 val appModule = module {
     single { UserRepository() }
     single { UserRegistrationChallengeRepository() }
-    single { UserAuthenticatorRepository() }
+    single { UserCredentialRepository() }
     single {
         jacksonObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

@@ -8,7 +8,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import me.yapoo.webauthn.config.ServerConfig
 import me.yapoo.webauthn.domain.authentication.AuthenticationChallengeRepository
-import me.yapoo.webauthn.domain.authentication.UserAuthenticatorRepository
+import me.yapoo.webauthn.domain.authentication.UserCredentialRepository
 import me.yapoo.webauthn.domain.session.LoginSession
 import me.yapoo.webauthn.domain.session.LoginSessionRepository
 import me.yapoo.webauthn.domain.user.UserRepository
@@ -23,7 +23,7 @@ class AuthenticationHandler(
     private val loginSessionRepository: LoginSessionRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
-    private val userAuthenticatorRepository: UserAuthenticatorRepository,
+    private val userCredentialRepository: UserCredentialRepository,
 ) {
     suspend fun handle(
         call: ApplicationCall,
@@ -46,7 +46,7 @@ class AuthenticationHandler(
         // If the user was not identified before the authentication ceremony was initiated, verify that response.userHandle is present. (skip)
         // Verify that the user account identified by response.userHandle contains a credential record whose id equals credential.rawId.
         // Let credentialRecord be that credential record.
-        val credentialRecord = userAuthenticatorRepository.find(request.rawId.toByteArray())
+        val credentialRecord = userCredentialRepository.find(request.rawId.toByteArray())
             ?: throw Exception("credential not found")
 
         // step 7
@@ -181,7 +181,7 @@ class AuthenticationHandler(
             signCount = authData.signCount,
             currentBs = authData.flags.bs,
         )
-        userAuthenticatorRepository.save(newCredential)
+        userCredentialRepository.save(newCredential)
 
         // step 25
         // If all the above steps are successful, continue with the authentication ceremony as appropriate.

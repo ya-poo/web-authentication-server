@@ -6,8 +6,8 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import me.yapoo.webauthn.config.ServerConfig
-import me.yapoo.webauthn.domain.authentication.UserAuthenticator
-import me.yapoo.webauthn.domain.authentication.UserAuthenticatorRepository
+import me.yapoo.webauthn.domain.authentication.UserCredential
+import me.yapoo.webauthn.domain.authentication.UserCredentialRepository
 import me.yapoo.webauthn.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.webauthn.domain.user.User
 import me.yapoo.webauthn.domain.user.UserRepository
@@ -19,7 +19,7 @@ import java.util.*
 
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
-    private val userAuthenticatorRepository: UserAuthenticatorRepository,
+    private val userCredentialRepository: UserCredentialRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
 ) {
@@ -164,15 +164,15 @@ class RegistrationHandler(
 
         // step 26
         // Verify that the credentialId is not yet registered for any user.
-        if (userAuthenticatorRepository.find(attestationObject.authenticatorData.attestedCredentialData.credentialId) != null) {
+        if (userCredentialRepository.find(attestationObject.authenticatorData.attestedCredentialData.credentialId) != null) {
             throw Exception("already registered credential")
         }
 
         // step 27
         // If the attestation statement attStmt verified successfully and is found to be trustworthy,
         // then create and store a new credential record in the user account that was denoted in options.user
-        userAuthenticatorRepository.save(
-            UserAuthenticator(
+        userCredentialRepository.save(
+            UserCredential(
                 type = request.type,
                 id = attestationObject.authenticatorData.attestedCredentialData.credentialId,
                 publicKey = attestationObject.authenticatorData.attestedCredentialData.credentialPublicKey,
