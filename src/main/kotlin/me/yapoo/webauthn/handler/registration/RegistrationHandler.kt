@@ -13,9 +13,9 @@ import com.webauthn4j.data.client.challenge.DefaultChallenge
 import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.util.Base64Util
 import com.webauthn4j.validator.exception.ValidationException
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import me.yapoo.webauthn.config.ServerConfig
 import me.yapoo.webauthn.domain.authentication.UserAuthenticator
 import me.yapoo.webauthn.domain.authentication.UserAuthenticatorRepository
@@ -29,8 +29,7 @@ import me.yapoo.webauthn.dto.CollectedClientData
 import me.yapoo.webauthn.dto.UserVerificationRequirement
 import java.security.MessageDigest
 import java.time.Instant
-import java.util.Base64
-import java.util.UUID
+import java.util.*
 
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
@@ -46,11 +45,6 @@ class RegistrationHandler(
         val sessionId = call.request.cookies["registration-session"]
             ?.let { UUID.fromString(it) }
             ?: throw Exception("registration-session is null")
-
-        /*
-         * Registering a New Credential
-         * https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
-         */
 
         // step 5
         // Let JSONtext be the result of running UTF-8 decode on the value of response.clientDataJSON.
