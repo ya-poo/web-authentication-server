@@ -27,9 +27,6 @@ class RegistrationHandler(
         call: ApplicationCall,
     ) {
         val request = call.receive<RegistrationRequest>()
-        val sessionId = call.request.cookies["registration-session"]
-            ?.let { UUID.fromString(it) }
-            ?: throw Exception("registration-session is null")
 
         // step 5
         // Let JSONtext be the result of running UTF-8 decode on the value of response.clientDataJSON.
@@ -48,8 +45,9 @@ class RegistrationHandler(
 
         // step 8
         // Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-        val challenge = userRegistrationChallengeRepository.find(sessionId)
-            ?: throw Exception("invalid challenge of CollectedClientData")
+        val challenge = userRegistrationChallengeRepository.find(
+            Base64.getUrlDecoder().decode(c.challenge).toString(Charsets.UTF_8)
+        ) ?: throw Exception("invalid challenge of CollectedClientData")
         if (Base64.getDecoder().decode(c.challenge).toString(Charsets.UTF_8) != challenge.challenge) {
             throw Exception("invalid challenge of CollectedClientData")
         }

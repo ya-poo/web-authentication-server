@@ -1,21 +1,15 @@
 package me.yapoo.webauthn.handler.preregistration
 
-import io.ktor.http.Cookie
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import me.yapoo.webauthn.config.ServerConfig
 import me.yapoo.webauthn.domain.registration.UserRegistrationChallenge
 import me.yapoo.webauthn.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.webauthn.domain.user.UserRepository
-import me.yapoo.webauthn.dto.AuthenticatorSelectionCriteria
-import me.yapoo.webauthn.dto.PublicKeyCredentialCreationOptions
-import me.yapoo.webauthn.dto.PublicKeyCredentialParameters
-import me.yapoo.webauthn.dto.PublicKeyCredentialRpEntity
-import me.yapoo.webauthn.dto.PublicKeyCredentialUserEntity
-import me.yapoo.webauthn.dto.ResidentKeyRequirement
+import me.yapoo.webauthn.dto.*
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 class PreregistrationHandler(
     private val userRepository: UserRepository,
@@ -31,14 +25,12 @@ class PreregistrationHandler(
             throw Exception()
         }
 
-        val registrationSession = UUID.randomUUID()
         val userId = UUID.randomUUID().toString()
         val challenge = UserRegistrationChallenge(
             userId = userId,
             username = request.username,
             challenge = UUID.randomUUID().toString(),
             createdAt = Instant.now(),
-            registrationSessionId = registrationSession
         )
         userRegistrationChallengeRepository.create(challenge)
 
@@ -69,12 +61,6 @@ class PreregistrationHandler(
             )
         )
 
-        call.response.cookies.append(
-            Cookie(
-                name = "registration-session",
-                value = registrationSession.toString()
-            )
-        )
         call.respond(response)
     }
 }

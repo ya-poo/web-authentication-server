@@ -1,7 +1,5 @@
 package me.yapoo.webauthn.domain.registration
 
-import java.util.UUID
-
 class UserRegistrationChallengeRepository {
 
     private val list = mutableListOf<UserRegistrationChallenge>()
@@ -14,10 +12,10 @@ class UserRegistrationChallengeRepository {
     }
 
     fun find(
-        sessionId: UUID
+        challenge: String
     ): UserRegistrationChallenge? {
         return list.singleOrNull {
-            it.registrationSessionId == sessionId
+            it.challenge == challenge
         }
     }
 }
