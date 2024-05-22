@@ -3,24 +3,18 @@ package me.yapoo.webauthn
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.jackson.jackson
-import io.ktor.server.application.Application
-import io.ktor.server.application.call
-import io.ktor.server.application.install
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.plugins.callloging.CallLogging
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.request.path
-import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.post
-import io.ktor.server.routing.routing
+import io.ktor.http.*
+import io.ktor.serialization.jackson.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import me.yapoo.webauthn.di.appModule
 import me.yapoo.webauthn.domain.session.LoginSessionRepository
 import me.yapoo.webauthn.domain.user.UserRepository
@@ -90,11 +84,9 @@ fun Application.module() {
     routing {
         post("/pre-registration") { preregistrationHandler.handle(call) }
         post("/registration") { registrationHandler.handle(call) }
-        post("/registration/webauthn4j") { registrationHandler.handleWithWebauthn4j(call) }
 
         post("/pre-authentication") { preAuthenticationHandler.handle(call) }
         post("/authentication") { authenticationHandler.handle(call) }
-        post("/authentication/webauthn4j") { authenticationHandler.handleWithWebauthn4j(call) }
 
         get("/session") {
             val sessionCookie = call.request.cookies["login-session"] ?: throw Exception("no login-session cookie")

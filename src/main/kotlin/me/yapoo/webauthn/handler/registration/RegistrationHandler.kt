@@ -2,25 +2,12 @@ package me.yapoo.webauthn.handler.registration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.webauthn4j.WebAuthnRegistrationManager
-import com.webauthn4j.authenticator.AuthenticatorImpl
-import com.webauthn4j.data.PublicKeyCredentialParameters
-import com.webauthn4j.data.PublicKeyCredentialType
-import com.webauthn4j.data.RegistrationParameters
-import com.webauthn4j.data.attestation.statement.COSEAlgorithmIdentifier
-import com.webauthn4j.data.client.Origin
-import com.webauthn4j.data.client.challenge.DefaultChallenge
-import com.webauthn4j.server.ServerProperty
-import com.webauthn4j.util.Base64Util
-import com.webauthn4j.validator.exception.ValidationException
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import me.yapoo.webauthn.config.ServerConfig
 import me.yapoo.webauthn.domain.authentication.UserAuthenticator
 import me.yapoo.webauthn.domain.authentication.UserAuthenticatorRepository
-import me.yapoo.webauthn.domain.authentication.UserWebAuthn4jAuthenticator
-import me.yapoo.webauthn.domain.authentication.UserWebAuthn4jAuthenticatorRepository
 import me.yapoo.webauthn.domain.registration.UserRegistrationChallengeRepository
 import me.yapoo.webauthn.domain.user.User
 import me.yapoo.webauthn.domain.user.UserRepository
@@ -28,12 +15,10 @@ import me.yapoo.webauthn.dto.AttestationObject
 import me.yapoo.webauthn.dto.CollectedClientData
 import me.yapoo.webauthn.dto.UserVerificationRequirement
 import java.security.MessageDigest
-import java.time.Instant
 import java.util.*
 
 class RegistrationHandler(
     private val userRegistrationChallengeRepository: UserRegistrationChallengeRepository,
-    private val userWebAuthn4jAuthenticatorRepository: UserWebAuthn4jAuthenticatorRepository,
     private val userAuthenticatorRepository: UserAuthenticatorRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
@@ -211,79 +196,6 @@ class RegistrationHandler(
                 username = challenge.username,
                 displayName = challenge.username,
                 id = challenge.userId
-            )
-        )
-
-        call.respond(Unit)
-    }
-
-    suspend fun handleWithWebauthn4j(
-        call: ApplicationCall,
-    ) {
-        val request = call.receive<RegistrationRequest>()
-        val sessionId = call.request.cookies["registration-session"]
-            ?.let { UUID.fromString(it) }
-            ?: throw Exception("registration-session is null")
-
-        val manager = WebAuthnRegistrationManager.createNonStrictWebAuthnRegistrationManager()
-
-        val registrationRequest = com.webauthn4j.data.RegistrationRequest(
-            Base64Util.decode(request.attestationObject),
-            Base64Util.decode(request.clientDataJSON)
-        )
-        val registrationData = manager.parse(registrationRequest)
-        if (registrationData.collectedClientData == null) {
-            throw Exception()
-        }
-
-        val serverChallenge = userRegistrationChallengeRepository.find(sessionId)
-            ?: throw Exception("registration session に紐づくチャレンジがありません")
-
-        if (serverChallenge.expiresAt <= Instant.now()) {
-            throw Exception("timeout")
-        }
-
-        val registrationParameters = RegistrationParameters(
-            ServerProperty(
-                Origin.create(ServerConfig.origin),
-                ServerConfig.rpid,
-                DefaultChallenge(serverChallenge.challenge.toByteArray()),
-                null
-            ),
-            listOf(
-                PublicKeyCredentialParameters(
-                    PublicKeyCredentialType.PUBLIC_KEY,
-                    COSEAlgorithmIdentifier.ES256
-                )
-            ),
-            false,
-            true
-        )
-
-        try {
-            manager.validate(registrationData, registrationParameters)
-        } catch (e: ValidationException) {
-            throw Exception(e)
-        }
-
-        val authenticator = AuthenticatorImpl(
-            registrationData.attestationObject!!.authenticatorData.attestedCredentialData!!,
-            registrationData.attestationObject?.attestationStatement,
-            registrationData.attestationObject!!.authenticatorData.signCount
-        )
-
-        userWebAuthn4jAuthenticatorRepository.add(
-            UserWebAuthn4jAuthenticator(
-                userId = serverChallenge.userId,
-                authenticator = authenticator
-            )
-        )
-
-        userRepository.add(
-            User(
-                username = serverChallenge.username,
-                displayName = serverChallenge.username,
-                id = serverChallenge.userId
             )
         )
 

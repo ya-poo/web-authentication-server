@@ -2,13 +2,6 @@ package me.yapoo.webauthn.handler.authentication
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.webauthn4j.WebAuthnAuthenticationManager
-import com.webauthn4j.data.AuthenticationParameters
-import com.webauthn4j.data.client.Origin
-import com.webauthn4j.data.client.challenge.DefaultChallenge
-import com.webauthn4j.server.ServerProperty
-import com.webauthn4j.util.Base64Util
-import com.webauthn4j.validator.exception.ValidationException
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -16,7 +9,6 @@ import io.ktor.server.response.*
 import me.yapoo.webauthn.config.ServerConfig
 import me.yapoo.webauthn.domain.authentication.AuthenticationChallengeRepository
 import me.yapoo.webauthn.domain.authentication.UserAuthenticatorRepository
-import me.yapoo.webauthn.domain.authentication.UserWebAuthn4jAuthenticatorRepository
 import me.yapoo.webauthn.domain.session.LoginSession
 import me.yapoo.webauthn.domain.session.LoginSessionRepository
 import me.yapoo.webauthn.domain.user.UserRepository
@@ -24,12 +16,10 @@ import me.yapoo.webauthn.dto.AuthenticatorData
 import me.yapoo.webauthn.dto.CollectedClientData
 import me.yapoo.webauthn.dto.UserVerificationRequirement
 import java.security.MessageDigest
-import java.time.Instant
 import java.util.*
 
 class AuthenticationHandler(
     private val authenticationChallengeRepository: AuthenticationChallengeRepository,
-    private val userWebAuthn4jAuthenticatorRepository: UserWebAuthn4jAuthenticatorRepository,
     private val loginSessionRepository: LoginSessionRepository,
     private val userRepository: UserRepository,
     private val objectMapper: ObjectMapper,
@@ -200,70 +190,6 @@ class AuthenticationHandler(
         val session = LoginSession(
             id = UUID.randomUUID().toString(),
             userId = user.id
-        )
-        loginSessionRepository.add(session)
-
-        call.response.cookies.append(
-            Cookie(
-                name = "login-session",
-                value = session.id
-            )
-        )
-        call.respond(Unit)
-    }
-
-    suspend fun handleWithWebauthn4j(
-        call: ApplicationCall,
-    ) {
-        val request = call.receive<AuthenticationRequest>()
-        val sessionId = call.request.cookies["authentication-session"]
-            ?.let { UUID.fromString(it) }
-            ?: throw Exception("authentication-session is null")
-
-        val authenticationRequest = com.webauthn4j.data.AuthenticationRequest(
-            Base64Util.decode(request.id),
-            Base64Util.decode(request.response.userHandle),
-            Base64Util.decode(request.response.authenticatorData),
-            Base64Util.decode(request.response.clientDataJSON),
-            Base64Util.decode(request.response.signature)
-        )
-
-        val serverChallenge = authenticationChallengeRepository.find(sessionId)
-            ?: throw Exception("challenge was not found")
-
-        if (serverChallenge.expiresAt <= Instant.now()) {
-            throw Exception("timeout")
-        }
-
-        val userAuthenticator = userWebAuthn4jAuthenticatorRepository.find(authenticationRequest.credentialId)
-            ?: throw Exception("authenticator が登録されていません")
-
-        val authenticationParameters = AuthenticationParameters(
-            ServerProperty(
-                Origin.create(ServerConfig.origin),
-                ServerConfig.rpid,
-                DefaultChallenge(serverChallenge.challenge.toByteArray()),
-                null
-            ),
-            userAuthenticator.authenticator,
-            listOf(userAuthenticator.authenticator.attestedCredentialData.credentialId),
-            true,
-            true,
-        )
-
-        val manager = WebAuthnAuthenticationManager()
-        try {
-            manager.validate(authenticationRequest, authenticationParameters)
-        } catch (e: ValidationException) {
-            throw Exception(e)
-        }
-
-        userAuthenticator.authenticator.counter++
-        userWebAuthn4jAuthenticatorRepository.update(userAuthenticator)
-
-        val session = LoginSession(
-            id = UUID.randomUUID().toString(),
-            userId = userAuthenticator.userId
         )
         loginSessionRepository.add(session)
 
