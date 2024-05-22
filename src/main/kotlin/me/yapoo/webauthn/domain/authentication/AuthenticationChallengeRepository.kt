@@ -1,7 +1,6 @@
 package me.yapoo.webauthn.domain.authentication
 
 import java.time.Instant
-import java.util.UUID
 
 class AuthenticationChallengeRepository {
 
@@ -10,18 +9,15 @@ class AuthenticationChallengeRepository {
     fun add(
         challenge: AuthenticationChallenge
     ) {
-        list.removeIf {
-            it.sessionId == challenge.sessionId
-        }
         list.add(challenge)
     }
 
     fun find(
-        sessionId: UUID,
+        challenge: String,
     ): AuthenticationChallenge? {
         return list.singleOrNull {
-            it.sessionId == sessionId &&
-                Instant.now() < it.expiresAt
+            it.challenge == challenge &&
+                    Instant.now() < it.expiresAt
         }
     }
 }

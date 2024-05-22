@@ -29,9 +29,6 @@ class AuthenticationHandler(
         call: ApplicationCall,
     ) {
         val request = call.receive<AuthenticationRequest>()
-        val sessionId = call.request.cookies["authentication-session"]
-            ?.let { UUID.fromString(it) }
-            ?: throw Exception("authentication-session is null")
 
         // step 5: skip (allowCredentials is empty)
         // If options.allowCredentials is not empty,
@@ -46,8 +43,9 @@ class AuthenticationHandler(
         // If the user was not identified before the authentication ceremony was initiated, verify that response.userHandle is present. (skip)
         // Verify that the user account identified by response.userHandle contains a credential record whose id equals credential.rawId.
         // Let credentialRecord be that credential record.
-        val credentialRecord = userCredentialRepository.find(request.rawId.toByteArray())
-            ?: throw Exception("credential not found")
+        val credentialRecord = userCredentialRepository.find(
+            Base64.getDecoder().decode(request.id)
+        ) ?: throw Exception("credential not found")
 
         // step 7
         // Let cData, authData and sig denote the value of response’s clientDataJSON, authenticatorData, and signature respectively.
@@ -72,8 +70,9 @@ class AuthenticationHandler(
 
         // step 11
         // Verify that the value of C.challenge equals the base64url encoding of options.challenge.
-        val challenge = authenticationChallengeRepository.find(sessionId)
-            ?: throw Exception("challenge was not found")
+        val challenge = authenticationChallengeRepository.find(
+            Base64.getUrlDecoder().decode(c.challenge).toString(Charsets.UTF_8)
+        ) ?: throw Exception("challenge was not found")
         if (Base64.getDecoder().decode(c.challenge).toString(Charsets.UTF_8) != challenge.challenge) {
             throw Exception("invalid challenge of CollectedClientData")
         }
